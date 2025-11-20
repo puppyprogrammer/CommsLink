@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -437,15 +437,6 @@
                     </div>
                 </div>
                 <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
-                    <label>ELEVENLABS API KEY (Optional)</label>
-                    <div class="input-box">
-                        <input type="password" id="elevenlabs-key" placeholder="Enter API Key for premium voices">
-                        <button id="save-key-btn" class="icon-btn" title="Save API Key">💾</button>
-                    </div>
-                    <small>For premium voice quality. Leave empty to use browser voices.</small>
-                    <small id="char-count" style="color: var(--accent-color);"></small>
-                </div>
-                <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
                     <label>NETWORK (ICE SERVERS)</label>
                     <div style="display: flex; flex-direction: column; gap: 5px;">
                         <input type="text" id="ice-urls" placeholder="stun:stun.l.google.com:19302">
@@ -509,35 +500,12 @@
             iceUser: document.getElementById('ice-user'),
             icePass: document.getElementById('ice-pass'),
             forceRelay: document.getElementById('force-relay'),
-            saveNetBtn: document.getElementById('save-net-btn'),
-            elevenLabsKey: document.getElementById('elevenlabs-key'),
-            saveKeyBtn: document.getElementById('save-key-btn'),
-            charCount: document.getElementById('char-count')
+            saveNetBtn: document.getElementById('save-net-btn')
         };
 
-        // --- ElevenLabs Integration ---
-        async function getElevenLabsVoices(apiKey) {
-            try {
-                const response = await fetch('https://api.elevenlabs.io/v1/voices', {
-                    headers: {
-                        'xi-api-key': apiKey
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
-                }
-
-                const data = await response.json();
-                return data.voices || [];
-            } catch (error) {
-                console.error('Error fetching ElevenLabs voices:', error);
-                logSystem('Failed to load ElevenLabs voices. Using browser voices.');
-                return [];
-            }
-        }
-
-        async function speakWithElevenLabs(text, voiceId, apiKey) {
+        // --- ElevenLabs Integration (Hardcoded API Key) ---
+        const ELEVENLABS_API_KEY = 'sk_be25dc0f6f5fa129d41fddd575f9f1bcf68afe31eca594a8';
+        async function speakWithElevenLabs(text, voiceId) {
             // Check cache first
             const cacheKey = `${voiceId}_${text}`;
             if (state.audioCache.has(cacheKey)) {
@@ -550,7 +518,7 @@
                 const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
                     method: 'POST',
                     headers: {
-                        'xi-api-key': apiKey,
+                        'xi-api-key': ELEVENLABS_API_KEY,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -577,9 +545,6 @@
                 state.audioCache.set(cacheKey, audioBlob);
 
                 playAudioBlob(audioBlob);
-
-                // Update character count
-                updateCharacterCount(apiKey);
             } catch (error) {
                 console.error('ElevenLabs TTS error:', error);
                 logSystem('ElevenLabs failed, falling back to browser voice.');
@@ -594,65 +559,16 @@
             audio.onended = () => URL.revokeObjectURL(audioUrl);
         }
 
-        async function updateCharacterCount(apiKey) {
-            try {
-                const response = await fetch('https://api.elevenlabs.io/v1/user', {
-                    headers: {
-                        'xi-api-key': apiKey
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const used = data.subscription.character_count;
-                    const limit = data.subscription.character_limit;
-                    const remaining = limit - used;
-                    els.charCount.textContent = `Characters: ${remaining.toLocaleString()} / ${limit.toLocaleString()} remaining`;
-                }
-            } catch (error) {
-                console.error('Error fetching character count:', error);
-            }
-        }
-
-        async function updateVoiceSelect() {
-            const apiKey = localStorage.getItem('elevenlabs_api_key');
-
+        function updateVoiceSelect() {
             els.voiceSelect.innerHTML = '';
-
-            if (apiKey) {
-                // Load ElevenLabs voices
-                state.elevenLabsVoices = await getElevenLabsVoices(apiKey);
-
-                if (state.elevenLabsVoices.length > 0) {
-                    const optgroup = document.createElement('optgroup');
-                    optgroup.label = '🌟 ElevenLabs (Premium)';
-
-                    state.elevenLabsVoices.forEach(voice => {
-                        const option = document.createElement('option');
-                        option.value = `elevenlabs_${voice.voice_id}`;
-                        option.textContent = voice.name;
-                        optgroup.appendChild(option);
-                    });
-
-                    els.voiceSelect.appendChild(optgroup);
-
-                    // Set first ElevenLabs voice as default
-                    state.voiceAvatar = `elevenlabs_${state.elevenLabsVoices[0].voice_id}`;
-
-                    // Update character count
-                    updateCharacterCount(apiKey);
-                } else {
-                    addBrowserVoices();
-                }
-            } else {
-                addBrowserVoices();
-            }
-        }
-
-        function addBrowserVoices() {
-            const optgroup = document.createElement('optgroup');
-            optgroup.label = 'Browser Voices';
-
+            
+            // Add ElevenLabs premium voice first
+            const premiumOption = document.createElement('option');
+            premiumOption.value = 'elevenlabs_o0M2BxRl1s2s3MZyU17F';
+            premiumOption.textContent = 'ðŸŒŸ Premium Voice';
+            els.voiceSelect.appendChild(premiumOption);
+            
+            // Add browser voices
             const browserVoices = [
                 { value: 'male', label: 'Male' },
                 { value: 'female', label: 'Female' },
@@ -665,25 +581,19 @@
                 { value: 'female_calm', label: 'Female (Calm)' },
                 { value: 'female_bright', label: 'Female (Bright)' }
             ];
-
+            
             browserVoices.forEach(v => {
                 const option = document.createElement('option');
                 option.value = v.value;
                 option.textContent = v.label;
-                optgroup.appendChild(option);
+                els.voiceSelect.appendChild(option);
             });
-
-            els.voiceSelect.appendChild(optgroup);
-            state.voiceAvatar = 'female';
+            
+            state.voiceAvatar = 'elevenlabs_o0M2BxRl1s2s3MZyU17F';
         }
 
-        // Save API Key
-        els.saveKeyBtn.addEventListener('click', async () => {
-            const key = els.elevenLabsKey.value.trim();
-            if (key) {
-                localStorage.setItem('elevenlabs_api_key', key);
-                alert('API Key saved! Reloading voices...');
-                await updateVoiceSelect();
+        // Initialize voices
+        updateVoiceSelect();
             } else {
                 localStorage.removeItem('elevenlabs_api_key');
                 alert('API Key removed. Using browser voices.');
@@ -910,11 +820,9 @@
         loadVoices();
 
         async function speakText(text, voiceId) {
-            const apiKey = localStorage.getItem('elevenlabs_api_key');
-
-            if (apiKey && voiceId && voiceId.startsWith('elevenlabs_')) {
+            if (voiceId && voiceId.startsWith('elevenlabs_')) {
                 const actualVoiceId = voiceId.replace('elevenlabs_', '');
-                await speakWithElevenLabs(text, actualVoiceId, apiKey);
+                await speakWithElevenLabs(text, actualVoiceId);
             } else {
                 speakWithBrowserVoice(text, voiceId || 'female');
             }
