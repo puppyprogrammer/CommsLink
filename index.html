@@ -444,6 +444,16 @@
                             </select>
                             <button id="test-voice-btn" class="icon-btn" title="Test Voice">🔊</button>
                         </div>
+                    <div class="pref-group">
+                        <label>INPUT LANGUAGE</label>
+                        <select id="input-language">
+                            <option value="en">English</option>
+                            <option value="lo">Laotian (ລາວ)</option>
+                            <option value="he">Hebrew (עברית)</option>
+                            <option value="es">Spanish (Español)</option>
+                            <option value="de">German (Deutsch)</option>
+                        </select>
+                    </div>
                     </div>
                     <div class="pref-group">
                         <label>MICROPHONE</label>
@@ -513,7 +523,8 @@
             isRecording: false,
             elevenLabsVoices: [],
             audioCache: new Map(),
-            hearOwnVoice: false
+            hearOwnVoice: false,
+            inputLanguage: \'en\'
         };
 
         const els = {
@@ -541,7 +552,8 @@
             elevenLabsKey: document.getElementById('elevenlabs-key'),
             verifyKeyBtn: document.getElementById('verify-key-btn'),
             apiStatus: document.getElementById('api-status'),
-            hearOwnVoice: document.getElementById('hear-own-voice')
+            hearOwnVoice: document.getElementById('hear-own-voice'),
+            inputLanguage: document.getElementById(\'input-language\')
         };
 
 
@@ -921,9 +933,14 @@
                 if (e.key === 'Enter') sendMessage();
             });
 
-            function sendMessage() {
+            async function sendMessage() {
                 const text = els.textInput.value.trim();
                 if (text) {
+                    // Translate to English if needed
+                    const translatedText = await translateToEnglish(text, state.inputLanguage);
+                    
+                    logChat(state.displayName, translatedText, true);
+                    sendData({ type: 'chat', message: translatedText, avatar: state.voiceAvatar });
                     logChat(state.displayName, text, true);
                     sendData({ type: 'chat', message: text, avatar: state.voiceAvatar });
                     // Play back own voice if enabled
@@ -962,6 +979,32 @@
                 localStorage.setItem('hear_own_voice', e.target.checked);
             });
 
+            // Input Language selector
+            const savedInputLang = localStorage.getItem('input_language');
+            if (savedInputLang) {
+                state.inputLanguage = savedInputLang;
+                els.inputLanguage.value = savedInputLang;
+            }
+
+            els.inputLanguage.addEventListener('change', (e) => {
+                state.inputLanguage = e.target.value;
+                localStorage.setItem('input_language', e.target.value);
+                
+                // Update speech recognition language
+                if (recognition) {
+                    const langMap = {
+                        'en': 'en-US',
+                        'lo': 'lo-LA',
+                        'he': 'he-IL',
+                        'es': 'es-ES',
+                        'de': 'de-DE'
+                    };
+                    recognition.lang = langMap[e.target.value] || 'en-US';
+                    logSystem(`Speech recognition language set to: ${recognition.lang}`);
+                }
+            });
+
+
 
             els.updateNameBtn.addEventListener('click', () => {
                 state.displayName = els.displayNameInput.value || 'User';
@@ -987,7 +1030,40 @@
             }
             loadVoices();
 
-                        async function speakText(text, voiceId) {
+            
+            // --- Translation Function ---
+            async function translateToEnglish(text, sourceLang) {
+                if (sourceLang === 'en') return text; // No translation needed
+                
+                try {
+                    const response = await fetch('https://libretranslate.com/translate', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            q: text,
+                            source: sourceLang,
+                            target: 'en',
+                            format: 'text'
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Translation failed: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    return data.translatedText;
+                } catch (error) {
+                    console.error('Translation error:', error);
+                    logSystem(`⚠️ Translation failed. Using original text.`);
+                    return text; // Fallback to original text
+                }
+            }
+
+
+            async function speakText(text, voiceId) {
                 logSystem(`🗣️ speakText called. VoiceID: ${voiceId}`);
                 if (voiceId && voiceId.startsWith('elevenlabs_')) {
                     const actualVoiceId = voiceId.replace('elevenlabs_', '');
