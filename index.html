@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -216,7 +216,7 @@
         }
 
         .roster-item::before {
-            content: '●';
+            content: '?';
             color: var(--success-color);
             font-size: 0.8rem;
         }
@@ -349,201 +349,6 @@
     </style>
 </head>
 
-<body>
-    <div class="container">
-        <header>
-            <h1>COMMS LINK <span class="status-indicator offline" id="status-indicator">OFFLINE</span></h1>
-        </header>
-
-        <main>
-            <section class="panel connection-panel">
-                <h2>Connection</h2>
-                <div class="connection-controls">
-                    <div class="control-group">
-                        <label>My Display Name</label>
-                        <div class="input-box">
-                            <input type="text" id="display-name" placeholder="Enter Name" value="User">
-                            <button id="update-name-btn" class="icon-btn" title="Update Name">💾</button>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>My ID</label>
-                        <div class="input-box">
-                            <span id="my-id">Connecting...</span>
-                            <button id="copy-id-btn" class="icon-btn" title="Copy ID">📋</button>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label>Connect to Friend</label>
-                        <div class="input-box">
-                            <input type="text" id="peer-id-input" placeholder="Enter Friend's ID">
-                            <button id="connect-btn">JOIN</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="roster">
-                    <label style="font-size:0.8rem; color:#888; text-transform:uppercase;">Connected Users</label>
-                    <ul id="roster-list" class="roster-list"></ul>
-                </div>
-            </section>
-
-            <section class="panel preferences-panel">
-                <h2>Preferences</h2>
-                <div class="pref-grid">
-                    <div class="pref-group">
-                        <label>INPUT MODE</label>
-                        <div class="toggle-group">
-                            <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">🎙️ Voice</button>
-                            <button class="toggle-btn" data-mode="text" id="btn-input-text">⌨️ Text</button>
-                        </div>
-                    </div>
-                    <div class="pref-group">
-                        <label>OUTPUT MODE</label>
-                        <div class="toggle-group">
-                            <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">🔊 Audio</button>
-                            <button class="toggle-btn" data-mode="text" id="btn-output-text">💬 Text</button>
-                        </div>
-                    </div>
-                    <div class="pref-group">
-                        <label>VOICE AVATAR</label>
-                        <div class="input-box">
-                            <select id="voice-select">
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                .roster-item::before {
-                                content: '●';
-                                color: var(--success-color);
-                                font-size: 0.8rem;
-                                }
-
-                                .pref-grid {
-                                display: grid;
-                                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                                gap: 20px;
-                                }
-
-                                .pref-group label {
-                                display: block;
-                                margin-bottom: 8px;
-                                font-size: 0.9rem;
-                                color: var(--text-secondary);
-                                }
-
-                                .toggle-group {
-                                display: flex;
-                                background: #000;
-                                border-radius: 4px;
-                                padding: 2px;
-                                }
-
-                                .toggle-btn {
-                                flex: 1;
-                                background: transparent;
-                                color: #666;
-                                padding: 5px;
-                                }
-
-                                .toggle-btn.active {
-                                background: var(--accent-dim);
-                                color: white;
-                                }
-
-                                select {
-                                width: 100%;
-                                background: #000;
-                                color: white;
-                                border: 1px solid var(--border-color);
-                                padding: 8px;
-                                border-radius: 4px;
-                                }
-
-                                .chat-panel {
-                                flex-grow: 1;
-                                display: flex;
-                                flex-direction: column;
-                                min-height: 0;
-                                }
-
-                                .chat-log {
-                                flex-grow: 1;
-                                overflow-y: auto;
-                                background: #000;
-                                border: 1px solid var(--border-color);
-                                border-radius: 4px;
-                                padding: 10px;
-                                margin-bottom: 10px;
-                                font-family: 'Roboto Mono', monospace;
-                                font-size: 0.9rem;
-                                }
-
-                                .message {
-                                margin-bottom: 8px;
-                                line-height: 1.4;
-                                }
-
-                                .message .sender {
-                                font-weight: bold;
-                                color: var(--accent-color);
-                                margin-right: 5px;
-                                }
-
-                                .message .content {
-                                color: #ddd;
-                                }
-
-                                .message.system {
-                                color: var(--text-secondary);
-                                font-style: italic;
-                                }
-
-                                .message.self .sender {
-                                color: #aaa;
-                                }
-
-                                .input-area {
-                                display: flex;
-                                gap: 10px;
-                                }
-
-                                #text-input {
-                                flex-grow: 1;
-                                }
-
-                                .ptt-btn {
-                                flex-grow: 1;
-                                background: #333;
-                                border: 1px solid var(--border-color);
-                                font-size: 1.1rem;
-                                letter-spacing: 1px;
-                                }
-
-                                .ptt-btn:not(:disabled):hover {
-                                background: #444;
-                                color: white;
-                                }
-
-                                .ptt-btn.recording {
-                                background: var(--danger-color);
-                                color: white;
-                                animation: pulse 1.5s infinite;
-                                }
-
-                                @keyframes pulse {
-                                0% {
-                                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.4);
-                                }
-
-                                70% {
-                                box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
-                                }
-
-                                100% {
-                                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
-                                }
-                                }
-                                </style>
-                                </head>
-
                                 <body>
                                     <div class="container">
                                         <header>
@@ -561,7 +366,7 @@
                                                             <input type="text" id="display-name"
                                                                 placeholder="Enter Name" value="User">
                                                             <button id="update-name-btn" class="icon-btn"
-                                                                title="Update Name">💾</button>
+                                                                title="Update Name">??</button>
                                                         </div>
                                                     </div>
                                                     <div class="control-group">
@@ -569,7 +374,7 @@
                                                         <div class="input-box">
                                                             <span id="my-id">Connecting...</span>
                                                             <button id="copy-id-btn" class="icon-btn"
-                                                                title="Copy ID">📋</button>
+                                                                title="Copy ID">??</button>
                                                         </div>
                                                     </div>
                                                     <div class="control-group">
@@ -596,18 +401,18 @@
                                                         <label>INPUT MODE</label>
                                                         <div class="toggle-group">
                                                             <button class="toggle-btn active" data-mode="voice"
-                                                                id="btn-input-voice">🎙️ Voice</button>
+                                                                id="btn-input-voice">??? Voice</button>
                                                             <button class="toggle-btn" data-mode="text"
-                                                                id="btn-input-text">⌨️ Text</button>
+                                                                id="btn-input-text">?? Text</button>
                                                         </div>
                                                     </div>
                                                     <div class="pref-group">
                                                         <label>OUTPUT MODE</label>
                                                         <div class="toggle-group">
                                                             <button class="toggle-btn active" data-mode="audio"
-                                                                id="btn-output-audio">🔊 Audio</button>
+                                                                id="btn-output-audio">?? Audio</button>
                                                             <button class="toggle-btn" data-mode="text"
-                                                                id="btn-output-text">💬 Text</button>
+                                                                id="btn-output-text">?? Text</button>
                                                         </div>
                                                     </div>
                                                     <div class="pref-group">
@@ -619,7 +424,7 @@
                                                                 <option value="robot">Robot</option>
                                                             </select>
                                                             <button id="test-voice-btn" class="icon-btn"
-                                                                title="Test Voice">🔊</button>
+                                                                title="Test Voice">??</button>
                                                         </div>
                                                     </div>
                                                     <div class="pref-group">
@@ -629,7 +434,7 @@
                                                                 <option value="default">Default</option>
                                                             </select>
                                                             <button id="refresh-mic-btn" class="icon-btn"
-                                                                title="Refresh Mics">🔄</button>
+                                                                title="Refresh Mics">??</button>
                                                         </div>
                                                     </div>
                                                 </div>
