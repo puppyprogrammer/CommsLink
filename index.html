@@ -216,7 +216,7 @@
         }
 
         .roster-item::before {
-            content: '?';
+            content: '●';
             color: var(--success-color);
             font-size: 0.8rem;
         }
@@ -349,422 +349,442 @@
     </style>
 </head>
 
-                                <body>
-                                    <div class="container">
-                                        <header>
-                                            <h1>COMMS LINK <span class="status-indicator offline"
-                                                    id="status-indicator">OFFLINE</span></h1>
-                                        </header>
+<body>
+    <div class="container">
+        <header>
+            <h1>COMMS LINK <span class="status-indicator offline" id="status-indicator">OFFLINE</span></h1>
+        </header>
 
-                                        <main>
-                                            <section class="panel connection-panel">
-                                                <h2>Connection</h2>
-                                                <div class="connection-controls">
-                                                    <div class="control-group">
-                                                        <label>My Display Name</label>
-                                                        <div class="input-box">
-                                                            <input type="text" id="display-name"
-                                                                placeholder="Enter Name" value="User">
-                                                            <button id="update-name-btn" class="icon-btn"
-                                                                title="Update Name">??</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="control-group">
-                                                        <label>My ID</label>
-                                                        <div class="input-box">
-                                                            <span id="my-id">Connecting...</span>
-                                                            <button id="copy-id-btn" class="icon-btn"
-                                                                title="Copy ID">??</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="control-group">
-                                                        <label>Connect to Friend</label>
-                                                        <div class="input-box">
-                                                            <input type="text" id="peer-id-input"
-                                                                placeholder="Enter Friend's ID">
-                                                            <button id="connect-btn">JOIN</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="roster">
-                                                    <label
-                                                        style="font-size:0.8rem; color:#888; text-transform:uppercase;">Connected
-                                                        Users</label>
-                                                    <ul id="roster-list" class="roster-list"></ul>
-                                                </div>
-                                            </section>
+        <main>
+            <section class="panel connection-panel">
+                <h2>Connection</h2>
+                <div class="connection-controls">
+                    <div class="control-group">
+                        <label>My Display Name</label>
+                        <div class="input-box">
+                            <input type="text" id="display-name" placeholder="Enter Name" value="User">
+                            <button id="update-name-btn" class="icon-btn" title="Update Name">??</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>My ID</label>
+                        <div class="input-box">
+                            <span id="my-id">Connecting...</span>
+                            <button id="copy-id-btn" class="icon-btn" title="Copy ID">??</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Connect to Friend</label>
+                        <div class="input-box">
+                            <input type="text" id="peer-id-input" placeholder="Enter Friend's ID">
+                            <button id="connect-btn">JOIN</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="roster">
+                    <label style="font-size:0.8rem; color:#888; text-transform:uppercase;">Connected
+                        Users</label>
+                    <ul id="roster-list" class="roster-list"></ul>
+                </div>
+            </section>
 
-                                            <section class="panel preferences-panel">
-                                                <h2>Preferences</h2>
-                                                <div class="pref-grid">
-                                                    <div class="pref-group">
-                                                        <label>INPUT MODE</label>
-                                                        <div class="toggle-group">
-                                                            <button class="toggle-btn active" data-mode="voice"
-                                                                id="btn-input-voice">??? Voice</button>
-                                                            <button class="toggle-btn" data-mode="text"
-                                                                id="btn-input-text">?? Text</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="pref-group">
-                                                        <label>OUTPUT MODE</label>
-                                                        <div class="toggle-group">
-                                                            <button class="toggle-btn active" data-mode="audio"
-                                                                id="btn-output-audio">?? Audio</button>
-                                                            <button class="toggle-btn" data-mode="text"
-                                                                id="btn-output-text">?? Text</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="pref-group">
-                                                        <label>VOICE AVATAR</label>
-                                                        <div class="input-box">
-                                                            <select id="voice-select">
-                                                                <option value="male">Male</option>
-                                                                <option value="female">Female</option>
-                                                                <option value="robot">Robot</option>
-                                                            </select>
-                                                            <button id="test-voice-btn" class="icon-btn"
-                                                                title="Test Voice">??</button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="pref-group">
-                                                        <label>MICROPHONE</label>
-                                                        <div class="input-box">
-                                                            <select id="mic-select">
-                                                                <option value="default">Default</option>
-                                                            </select>
-                                                            <button id="refresh-mic-btn" class="icon-btn"
-                                                                title="Refresh Mics">??</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="pref-group"
-                                                    style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
-                                                    <label>NETWORK (ICE SERVERS)</label>
-                                                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                                                        <input type="text" id="ice-urls"
-                                                            placeholder="stun:stun.l.google.com:19302">
-                                                        <input type="text" id="ice-user"
-                                                            placeholder="Username (Optional)">
-                                                        <input type="password" id="ice-pass"
-                                                            placeholder="Password (Optional)">
-                                                        <div
-                                                            style="display: flex; align-items: center; gap: 10px; margin: 5px 0;">
-                                                            <input type="checkbox" id="force-relay"
-                                                                style="width: auto;">
-                                                            <label for="force-relay"
-                                                                style="margin: 0; font-size: 0.8rem; color: #aaa;">Force
-                                                                Relay (Hide IP) - Requires TURN</label>
-                                                        </div>
-                                                        <button id="save-net-btn">SAVE & RECONNECT</button>
-                                                    </div>
-                                                </div>
-                                            </section>
+            <section class="panel preferences-panel">
+                <h2>Preferences</h2>
+                <div class="pref-grid">
+                    <div class="pref-group">
+                        <label>INPUT MODE</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">??? Voice</button>
+                            <button class="toggle-btn" data-mode="text" id="btn-input-text">?? Text</button>
+                        </div>
+                    </div>
+                    <div class="pref-group">
+                        <label>OUTPUT MODE</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">?? Audio</button>
+                            <button class="toggle-btn" data-mode="text" id="btn-output-text">?? Text</button>
+                        </div>
+                    </div>
+                    <div class="pref-group">
+                        <label>VOICE AVATAR</label>
+                        <div class="input-box">
+                            <select id="voice-select">
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="robot">Robot</option>
+                            </select>
+                            <button id="test-voice-btn" class="icon-btn" title="Test Voice">??</button>
+                        </div>
+                    </div>
+                    <div class="pref-group">
+                        <label>MICROPHONE</label>
+                        <div class="input-box">
+                            <select id="mic-select">
+                                <option value="default">Default</option>
+                            </select>
+                            <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">??</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
+                    <label>NETWORK (ICE SERVERS)</label>
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <input type="text" id="ice-urls" placeholder="stun:stun.l.google.com:19302">
+                        <input type="text" id="ice-user" placeholder="Username (Optional)">
+                        <input type="password" id="ice-pass" placeholder="Password (Optional)">
+                        <div style="display: flex; align-items: center; gap: 10px; margin: 5px 0;">
+                            <input type="checkbox" id="force-relay" style="width: auto;">
+                            <label for="force-relay" style="margin: 0; font-size: 0.8rem; color: #aaa;">Force
+                                Relay (Hide IP) - Requires TURN</label>
+                        </div>
+                        <button id="save-net-btn">SAVE & RECONNECT</button>
+                    </div>
+                </div>
+            </section>
 
-                                            <section class="panel chat-panel">
-                                                <div id="chat-log" class="chat-log">
-                                                    <div class="system-msg">System initialized. Waiting for
-                                                        connection...</div>
-                                                </div>
-                                                <div class="input-area">
-                                                    <input type="text" id="text-input" placeholder="Type message..."
-                                                        disabled>
-                                                    <button id="send-btn" disabled>SEND</button>
-                                                    <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
-                                                </div>
-                                            </section>
-                                        </main>
-                                    </div>
+            <section class="panel chat-panel">
+                <div id="chat-log" class="chat-log">
+                    <div class="system-msg">System initialized. Waiting for
+                        connection...</div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="text-input" placeholder="Type message..." disabled>
+                    <button id="send-btn" disabled>SEND</button>
+                    <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
+                </div>
+            </section>
+        </main>
+    </div>
 
-                                    <script>
-                                        const state = { myId: null, displayName: 'User', connections: [], inputMode: 'voice', outputMode: 'audio', voiceAvatar: 'male', isRecording: false };
-                                        const els = {
-                                            myId: document.getElementById('my-id'),
-                                            status: document.getElementById('status-indicator'),
-                                            peerIdInput: document.getElementById('peer-id-input'),
-                                            connectBtn: document.getElementById('connect-btn'),
-                                            copyBtn: document.getElementById('copy-id-btn'),
-                                            displayName: document.getElementById('display-name'),
-                                            updateNameBtn: document.getElementById('update-name-btn'),
-                                            rosterList: document.getElementById('roster-list'),
-                                            chatLog: document.getElementById('chat-log'),
-                                            textInput: document.getElementById('text-input'),
-                                            sendBtn: document.getElementById('send-btn'),
-                                            pttBtn: document.getElementById('ptt-btn'),
-                                            voiceSelect: document.getElementById('voice-select'),
-                                            micSelect: document.getElementById('mic-select'),
-                                            refreshMicBtn: document.getElementById('refresh-mic-btn'),
-                                            inputToggles: document.querySelectorAll('.toggle-btn[id^="btn-input"]'),
-                                            outputToggles: document.querySelectorAll('.toggle-btn[id^="btn-output"]'),
-                                            iceUrls: document.getElementById('ice-urls'),
-                                            iceUser: document.getElementById('ice-user'),
-                                            icePass: document.getElementById('ice-pass'),
-                                            forceRelay: document.getElementById('force-relay'),
-                                            saveNetBtn: document.getElementById('save-net-btn')
-                                        };
+    <script>
+        const state = { myId: null, displayName: 'User', connections: [], inputMode: 'voice', outputMode: 'audio', voiceAvatar: 'male', isRecording: false };
+        const els = {
+            myId: document.getElementById('my-id'),
+            status: document.getElementById('status-indicator'),
+            peerIdInput: document.getElementById('peer-id-input'),
+            connectBtn: document.getElementById('connect-btn'),
+            rosterList: document.getElementById('roster-list'),
+            chatLog: document.getElementById('chat-log'),
+            textInput: document.getElementById('text-input'),
+            sendBtn: document.getElementById('send-btn'),
+            pttBtn: document.getElementById('ptt-btn'),
+            displayNameInput: document.getElementById('display-name'),
+            updateNameBtn: document.getElementById('update-name-btn'),
+            copyIdBtn: document.getElementById('copy-id-btn'),
+            voiceSelect: document.getElementById('voice-select'),
+            testVoiceBtn: document.getElementById('test-voice-btn'),
+            micSelect: document.getElementById('mic-select'),
+            refreshMicBtn: document.getElementById('refresh-mic-btn'),
+            iceUrls: document.getElementById('ice-urls'),
+            iceUser: document.getElementById('ice-user'),
+            icePass: document.getElementById('ice-pass'),
+            forceRelay: document.getElementById('force-relay'),
+            saveNetBtn: document.getElementById('save-net-btn')
+        };
 
-                                        // Load Network Settings
-                                        const savedIce = JSON.parse(localStorage.getItem('comms_ice_config') || '{}');
-                                        if (els.iceUrls) els.iceUrls.value = savedIce.urls || 'stun:stun.l.google.com:19302';
-                                        if (els.iceUser) els.iceUser.value = savedIce.username || '';
-                                        if (els.icePass) els.icePass.value = savedIce.credential || '';
-                                        if (els.forceRelay) els.forceRelay.checked = savedIce.forceRelay || false;
+        // --- Network Settings Management ---
+        function loadNetworkSettings() {
+            const saved = localStorage.getItem('comms_network_settings');
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
+                    els.iceUrls.value = config.iceServers[0].urls; // Simplified loading
+                    if (config.iceServers[0].username) els.iceUser.value = config.iceServers[0].username;
+                    if (config.iceServers[0].credential) els.icePass.value = config.iceServers[0].credential;
+                    if (config.iceTransportPolicy === 'relay') els.forceRelay.checked = true;
+                } catch (e) { console.error("Error loading net settings", e); }
+            }
+        }
+        loadNetworkSettings();
 
-                                        function getPeerConfig() {
-                                            const urls = els.iceUrls ? els.iceUrls.value.trim() : 'stun:stun.l.google.com:19302';
-                                            const username = els.iceUser ? els.iceUser.value.trim() : '';
-                                            const credential = els.icePass ? els.icePass.value.trim() : '';
-                                            const forceRelay = els.forceRelay ? els.forceRelay.checked : false;
+        function getPeerConfig() {
+            const urls = els.iceUrls.value.trim() || 'stun:stun.l.google.com:19302';
+            const user = els.iceUser.value.trim();
+            const pass = els.icePass.value.trim();
+            const forceRelay = els.forceRelay.checked;
 
-                                            const config = {
-                                                iceServers: [
-                                                    { urls: 'stun:stun.l.google.com:19302' } // Always include default
-                                                ],
-                                                iceTransportPolicy: forceRelay ? 'relay' : 'all'
-                                            };
+            const iceServer = { urls: urls };
+            if (user) iceServer.username = user;
+            if (pass) iceServer.credential = pass;
 
-                                            if (urls) {
-                                                const customServer = { urls: urls };
-                                                if (username) customServer.username = username;
-                                                if (credential) customServer.credential = credential;
-                                                config.iceServers.push(customServer);
-                                            }
-                                            return config;
-                                        }
+            const config = {
+                config: {
+                    iceServers: [iceServer],
+                    iceTransportPolicy: forceRelay ? 'relay' : 'all'
+                }
+            };
+            return config;
+        }
 
-                                        let peer = new Peer(getPeerConfig());
+        els.saveNetBtn.addEventListener('click', () => {
+            const config = getPeerConfig();
+            // Save to local storage for persistence (simplified structure)
+            const saveData = {
+                iceServers: config.config.iceServers,
+                iceTransportPolicy: config.config.iceTransportPolicy
+            };
+            localStorage.setItem('comms_network_settings', JSON.stringify(saveData));
+            alert("Network settings saved. Reconnecting...");
+            location.reload(); // Simple reload to apply new Peer config
+        });
 
-                                        if (els.saveNetBtn) {
-                                            els.saveNetBtn.addEventListener('click', () => {
-                                                const config = {
-                                                    urls: els.iceUrls.value.trim(),
-                                                    username: els.iceUser.value.trim(),
-                                                    credential: els.icePass.value.trim(),
-                                                    forceRelay: els.forceRelay.checked
-                                                };
-                                                localStorage.setItem('comms_ice_config', JSON.stringify(config));
-                                                logSystem('Network settings saved. Reconnecting...');
 
-                                                peer.destroy();
-                                                peer = new Peer(getPeerConfig());
-                                                setupPeerEvents(peer);
-                                            });
-                                        }
+        // --- PeerJS Initialization ---
+        const peer = new Peer(getPeerConfig().config);
 
-                                        setupPeerEvents(peer);
+        peer.on('open', (id) => {
+            state.myId = id;
+            els.myId.textContent = id;
+            els.status.textContent = 'ONLINE';
+            els.status.classList.remove('offline');
+            els.status.classList.add('online');
+            logSystem(`Connected to network. ID: ${id}`);
+        });
 
-                                        function setupPeerEvents(p) {
-                                            p.on('open', id => { state.myId = id; els.myId.textContent = id; logSystem('Ready. Share your ID to connect.'); enableControls(true); });
-                                            p.on('connection', conn => { handleConnection(conn); });
-                                            p.on('error', err => { logSystem(`Error: ${err.type}`, true); });
-                                        }
+        peer.on('connection', (conn) => {
+            handleConnection(conn);
+        });
 
-                                        els.connectBtn.addEventListener('click', () => { const destId = els.peerIdInput.value.trim(); if (!destId) return; if (state.connections.some(c => c.peer === destId)) { logSystem(`Already connected to ${destId}`); return; } logSystem(`Connecting to ${destId}...`); const conn = peer.connect(destId); handleConnection(conn); });
-                                        els.copyBtn.addEventListener('click', () => { if (state.myId) { navigator.clipboard.writeText(state.myId); logSystem('ID copied to clipboard.'); } });
-                                        els.updateNameBtn.addEventListener('click', () => { const newName = els.displayName.value.trim(); if (newName) { state.displayName = newName; logSystem(`Name updated to: ${newName}`); broadcast({ type: 'info', name: state.displayName }); } });
+        peer.on('error', (err) => {
+            console.error(err);
+            logSystem(`Error: ${err.type}`);
+        });
 
-                                        function handleConnection(conn) { state.connections.push(conn); updateStatus(); conn.on('open', () => { logSystem(`Connected to ${conn.peer}`); conn.send({ type: 'info', name: state.displayName }); updateRoster(); }); conn.on('data', data => { handleIncomingData(conn, data); }); conn.on('close', () => { logSystem(`Disconnected from ${conn.peer}`); state.connections = state.connections.filter(c => c !== conn); updateStatus(); updateRoster(); }); }
-                                        function updateStatus() { if (state.connections.length > 0) { els.status.textContent = `ONLINE (${state.connections.length})`; els.status.classList.remove('offline'); els.status.classList.add('online'); } else { els.status.textContent = 'OFFLINE'; els.status.classList.remove('online'); els.status.classList.add('offline'); } }
-                                        function updateRoster() { els.rosterList.innerHTML = ''; addRosterItem(state.displayName + ' (You)'); state.connections.forEach(conn => { const name = conn.displayName || conn.peer; addRosterItem(name); }); }
-                                        function addRosterItem(name) { const li = document.createElement('li'); li.className = 'roster-item'; li.textContent = name; els.rosterList.appendChild(li); }
-                                        function broadcast(payload) { state.connections.forEach(conn => { if (conn.open) conn.send(payload); }); }
-                                        function sendMessage(text) { const payload = { type: 'chat', text, avatar: state.voiceAvatar, senderName: state.displayName }; broadcast(payload); logChat('ME', text, true); }
-                                        function handleIncomingData(conn, data) { if (data.type === 'info') { if (data.name) { const oldName = conn.displayName; conn.displayName = data.name; if (oldName && oldName !== data.name) { logSystem(`${oldName} renamed to ${data.name}`); } else if (!oldName) { logSystem(`${data.name} joined.`); } updateRoster(); } } else if (data.type === 'chat') { const { text, avatar, senderName } = data; logChat(senderName || 'FRIEND', text); if (state.outputMode === 'audio') { speakText(text, avatar); } } }
-                                        function enableControls(enabled) { els.textInput.disabled = !enabled; els.sendBtn.disabled = !enabled; els.pttBtn.disabled = !enabled; if (!window.SpeechRecognition && !window.webkitSpeechRecognition) { els.pttBtn.disabled = true; } }
-                                        function logSystem(msg, isError = false) { const div = document.createElement('div'); div.className = `message system ${isError ? 'error' : ''}`; div.textContent = `[SYS] ${msg}`; els.chatLog.appendChild(div); els.chatLog.scrollTop = els.chatLog.scrollHeight; }
-                                        function logChat(sender, text, isSelf = false) { const div = document.createElement('div'); div.className = `message ${isSelf ? 'self' : ''}`; div.innerHTML = `<span class="sender">${sender}:</span><span class="content">${text}</span>`; els.chatLog.appendChild(div); els.chatLog.scrollTop = els.chatLog.scrollHeight; }
-                                        els.inputToggles.forEach(btn => { btn.addEventListener('click', () => { state.inputMode = btn.dataset.mode; updateToggleUI(els.inputToggles, state.inputMode); if (state.inputMode === 'voice') { els.textInput.style.display = 'none'; els.sendBtn.style.display = 'none'; els.pttBtn.style.display = 'block'; } else { els.textInput.style.display = 'block'; els.sendBtn.style.display = 'block'; els.pttBtn.style.display = 'none'; stopRecording(); } }); });
-                                        els.outputToggles.forEach(btn => { btn.addEventListener('click', () => { state.outputMode = btn.dataset.mode; updateToggleUI(els.outputToggles, state.outputMode); }); });
-                                        els.voiceSelect.addEventListener('change', e => { state.voiceAvatar = e.target.value; });
-                                        function updateToggleUI(group, active) { group.forEach(btn => { if (btn.dataset.mode === active) btn.classList.add('active'); else btn.classList.remove('active'); }); }
+        els.connectBtn.addEventListener('click', () => {
+            const peerId = els.peerIdInput.value.trim();
+            if (peerId) {
+                const conn = peer.connect(peerId);
+                handleConnection(conn);
+            }
+        });
 
-                                        // Initial UI State
-                                        els.textInput.style.display = 'none';
-                                        els.sendBtn.style.display = 'none';
+        function handleConnection(conn) {
+            conn.on('open', () => {
+                if (!state.connections.find(c => c.peer === conn.peer)) {
+                    state.connections.push(conn);
+                    updateRoster();
+                    logSystem(`Connected to ${conn.peer}`);
+                    enableChat();
+                }
+            });
 
-                                        els.sendBtn.addEventListener('click', () => { const text = els.textInput.value.trim(); if (text) { sendMessage(text); els.textInput.value = ''; } });
-                                        els.textInput.addEventListener('keypress', e => { if (e.key === 'Enter') els.sendBtn.click(); });
+            conn.on('data', (data) => {
+                handleData(data, conn.peer);
+            });
 
-                                        // Microphone handling and logging
-                                        let micGranted = false;
-                                        let micStream = null;
+            conn.on('close', () => {
+                state.connections = state.connections.filter(c => c.peer !== conn.peer);
+                updateRoster();
+                logSystem(`Disconnected from ${conn.peer}`);
+            });
+        }
 
-                                        async function requestMicPermission() {
-                                            if (micGranted) return;
-                                            logSystem('Requesting microphone permission...', false);
-                                            try {
-                                                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                                                micGranted = true;
-                                                logSystem('Microphone permission GRANTED.', false);
-                                                listAudioInputs(); // Enumerate devices after permission
-                                            } catch (e) {
-                                                console.error('Microphone permission denied:', e);
-                                                logSystem(`Microphone access denied: ${e.message || e.name}`, true);
-                                            }
-                                        }
+        function handleData(data, peerId) {
+            if (data.type === 'chat') {
+                logChat(peerId, data.message);
+                if (state.outputMode === 'audio') {
+                    speakText(data.message, data.avatar); // Use sender's avatar preference
+                }
+            }
+        }
 
-                                        async function listAudioInputs() {
-                                            if (!micGranted) return;
-                                            try {
-                                                const devices = await navigator.mediaDevices.enumerateDevices();
-                                                const audioInputs = devices.filter(device => device.kind === 'audioinput');
+        function sendData(data) {
+            state.connections.forEach(conn => conn.send(data));
+        }
 
-                                                els.micSelect.innerHTML = '';
-                                                audioInputs.forEach(device => {
-                                                    const option = document.createElement('option');
-                                                    option.value = device.deviceId;
-                                                    option.text = device.label || `Microphone ${els.micSelect.length + 1}`;
-                                                    els.micSelect.appendChild(option);
-                                                });
-                                                logSystem(`Found ${audioInputs.length} audio input devices.`);
-                                            } catch (e) {
-                                                logSystem(`Error listing devices: ${e.message}`, true);
-                                            }
-                                        }
+        // --- UI & Interaction ---
+        function updateRoster() {
+            els.rosterList.innerHTML = '';
+            state.connections.forEach(conn => {
+                const li = document.createElement('li');
+                li.className = 'roster-item';
+                li.textContent = conn.peer; // In real app, exchange display names
+                els.rosterList.appendChild(li);
+            });
+        }
 
-                                        if (els.refreshMicBtn) {
-                                            els.refreshMicBtn.addEventListener('click', listAudioInputs);
-                                        }
+        function logSystem(msg) {
+            const div = document.createElement('div');
+            div.className = 'message system';
+            div.textContent = `[SYS] ${msg}`;
+            els.chatLog.appendChild(div);
+            els.chatLog.scrollTop = els.chatLog.scrollHeight;
+        }
 
-                                        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-                                        let recognition = null;
-                                        if (SpeechRecognition) {
-                                            recognition = new SpeechRecognition();
-                                            recognition.continuous = true;
-                                            recognition.lang = 'en-US';
-                                            recognition.interimResults = false;
+        function logChat(sender, msg, isSelf = false) {
+            const div = document.createElement('div');
+            div.className = `message ${isSelf ? 'self' : ''}`;
+            div.innerHTML = `<span class="sender">${sender}:</span> <span class="content">${msg}</span>`;
+            els.chatLog.appendChild(div);
+            els.chatLog.scrollTop = els.chatLog.scrollHeight;
+        }
 
-                                            recognition.onstart = () => {
-                                                logSystem('Speech Recognition STARTED.');
-                                            };
+        function enableChat() {
+            els.textInput.disabled = false;
+            els.sendBtn.disabled = false;
+            els.pttBtn.disabled = false;
+        }
 
-                                            recognition.onresult = event => {
-                                                const last = event.results[event.results.length - 1];
-                                                if (last.isFinal) {
-                                                    const txt = last[0].transcript.trim();
-                                                    if (txt) { sendMessage(txt); }
-                                                }
-                                            };
+        els.sendBtn.addEventListener('click', sendMessage);
+        els.textInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
 
-                                            recognition.onerror = event => {
-                                                console.error('Speech recognition error', event.error);
-                                                logSystem(`Speech Recognition Error: ${event.error}`, true);
-                                                if (event.error === 'not-allowed') {
-                                                    stopRecording();
-                                                }
-                                            };
+        function sendMessage() {
+            const text = els.textInput.value.trim();
+            if (text) {
+                logChat(state.displayName, text, true);
+                sendData({ type: 'chat', message: text, avatar: state.voiceAvatar });
+                els.textInput.value = '';
+            }
+        }
 
-                                            recognition.onend = () => {
-                                                logSystem('Speech Recognition ENDED.');
-                                                if (state.isRecording) {
-                                                    logSystem('Attempting restart in 1000ms...');
-                                                    // Add delay to prevent rapid permission re-requests
-                                                    setTimeout(() => {
-                                                        if (state.isRecording) {
-                                                            try {
-                                                                recognition.start();
-                                                                logSystem('Restarting recognition...');
-                                                            } catch (e) {
-                                                                logSystem(`Restart failed: ${e.message}`, true);
-                                                            }
-                                                        }
-                                                    }, 1000);
-                                                } else {
-                                                    updateMicButton(false);
-                                                }
-                                            };
-                                        } else {
-                                            logSystem('Speech Recognition not supported in this browser.', true);
-                                            els.pttBtn.disabled = true;
-                                            els.pttBtn.textContent = 'NOT SUPPORTED';
-                                        }
+        // --- Preferences ---
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const group = e.target.parentElement;
+                group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
 
-                                        els.pttBtn.addEventListener('click', () => { if (!recognition) return; if (state.isRecording) stopRecording(); else startRecording(); });
+                if (e.target.id.includes('input')) state.inputMode = e.target.dataset.mode;
+                if (e.target.id.includes('output')) state.outputMode = e.target.dataset.mode;
+            });
+        });
 
-                                        function startRecording() {
-                                            if (!recognition) return;
-                                            requestMicPermission().then(() => {
-                                                if (!micGranted) return;
-                                                try {
-                                                    // Note: SpeechRecognition doesn't natively support selecting a specific device ID easily 
-                                                    // without more complex AudioContext work, but we can at least log what we have.
-                                                    // However, we can try to set the stream if the browser supports it, 
-                                                    // but standard Web Speech API usually uses the system default.
-                                                    // We will log the selected device for debugging.
-                                                    const selectedMicId = els.micSelect.value;
-                                                    const selectedMicLabel = els.micSelect.options[els.micSelect.selectedIndex]?.text;
-                                                    logSystem(`Starting recording with selected mic: ${selectedMicLabel} (${selectedMicId})`);
+        els.voiceSelect.addEventListener('change', (e) => {
+            state.voiceAvatar = e.target.value;
+        });
 
-                                                    recognition.start();
-                                                    state.isRecording = true;
-                                                    updateMicButton(true);
-                                                    logSystem('Microphone ON. Speak now.');
-                                                } catch (e) {
-                                                    console.error(e);
-                                                    logSystem(`Start failed: ${e.message}`, true);
-                                                }
-                                            });
-                                        }
+        els.updateNameBtn.addEventListener('click', () => {
+            state.displayName = els.displayNameInput.value || 'User';
+            alert(`Display Name updated to: ${state.displayName}`);
+        });
 
-                                        function stopRecording() {
-                                            if (!recognition) return;
-                                            state.isRecording = false;
-                                            recognition.stop();
-                                            updateMicButton(false);
-                                            logSystem('Microphone OFF.');
-                                        }
+        els.copyIdBtn.addEventListener('click', () => {
+            if (state.myId) {
+                navigator.clipboard.writeText(state.myId).then(() => alert('ID copied!'));
+            }
+        });
 
-                                        function updateMicButton(isRec) {
-                                            if (isRec) {
-                                                els.pttBtn.textContent = 'LISTENING...';
-                                                els.pttBtn.style.background = '#ff4444';
-                                                els.pttBtn.classList.add('recording');
-                                            } else {
-                                                els.pttBtn.textContent = 'START MIC';
-                                                els.pttBtn.style.background = '';
-                                                els.pttBtn.classList.remove('recording');
-                                            }
-                                        }
+        // --- Audio / Speech ---
+        const synth = window.speechSynthesis;
+        let voices = [];
 
-                                        // Ensure voices are loaded
-                                        const synth = window.speechSynthesis;
-                                        let voices = [];
-                                        function loadVoices() {
-                                            voices = synth.getVoices();
-                                        }
-                                        if (speechSynthesis.onvoiceschanged !== undefined) {
-                                            speechSynthesis.onvoiceschanged = loadVoices;
-                                        }
-                                        loadVoices();
+        function loadVoices() {
+            voices = synth.getVoices();
+            // Populate voice select if needed, or just keep generic types
+        }
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        loadVoices();
 
-                                        function speakText(text, avatar) {
-                                            if (synth.speaking) { /* synth.cancel(); */ }
-                                            const utter = new SpeechSynthesisUtterance(text);
-                                            if (voices.length === 0) loadVoices();
+        function speakText(text, avatar) {
+            if (synth.speaking) { /* synth.cancel(); */ }
+            const utter = new SpeechSynthesisUtterance(text);
+            if (voices.length === 0) loadVoices();
 
-                                            let sel = null;
-                                            if (avatar === 'female') {
-                                                sel = voices.find(v => v.name.includes('Female') || v.name.includes('Google US English'));
-                                                utter.pitch = 1.2; utter.rate = 1.1;
-                                            } else if (avatar === 'male') {
-                                                sel = voices.find(v => v.name.includes('Male') || v.name.includes('Google UK English Male'));
-                                                utter.pitch = 0.8; utter.rate = 0.9;
-                                            } else {
-                                                sel = voices.find(v => v.name.includes('Zira') || v.name.includes('Google US English'));
-                                                utter.pitch = 0.5; utter.rate = 0.8;
-                                            }
-                                            if (sel) utter.voice = sel;
-                                            synth.speak(utter);
-                                        }
+            let sel = null;
+            if (avatar === 'female') {
+                sel = voices.find(v => v.name.includes('Female') || v.name.includes('Google US English'));
+                utter.pitch = 1.2; utter.rate = 1.1;
+            } else if (avatar === 'male') {
+                sel = voices.find(v => v.name.includes('Male') || v.name.includes('Google UK English Male'));
+                utter.pitch = 0.8; utter.rate = 0.9;
+            } else {
+                sel = voices.find(v => v.name.includes('Zira') || v.name.includes('Google US English'));
+                utter.pitch = 0.5; utter.rate = 0.8;
+            }
+            if (sel) utter.voice = sel;
+            synth.speak(utter);
+        }
 
-                                        // Test Voice Button Logic
-                                        const testVoiceBtn = document.getElementById('test-voice-btn');
-                                        if (testVoiceBtn) {
-                                            testVoiceBtn.addEventListener('click', () => {
-                                                speakText("System audio check. Voice systems nominal.", state.voiceAvatar);
-                                            });
-                                        }
-                                    </script>
-                                </body>
+        // Test Voice Button Logic
+        const testVoiceBtn = document.getElementById('test-voice-btn');
+        if (testVoiceBtn) {
+            testVoiceBtn.addEventListener('click', () => {
+                speakText("System audio check. Voice systems nominal.", state.voiceAvatar);
+            });
+        }
+
+        // --- Microphone Handling ---
+        // Populate microphone list
+        async function getMicrophones() {
+            try {
+                await navigator.mediaDevices.getUserMedia({ audio: true }); // Request permission first
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const audioInputs = devices.filter(device => device.kind === 'audioinput');
+
+                els.micSelect.innerHTML = '';
+                audioInputs.forEach(device => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    option.text = device.label || `Microphone ${els.micSelect.length + 1}`;
+                    els.micSelect.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Error accessing microphones:', err);
+                logSystem('Error accessing microphone. Please check permissions.');
+            }
+        }
+
+        els.refreshMicBtn.addEventListener('click', getMicrophones);
+        getMicrophones(); // Initial load
+
+        // Speech Recognition (Web Speech API)
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                logSystem(`Heard: "${transcript}"`);
+                els.textInput.value = transcript;
+                sendMessage(); // Auto-send on voice input
+            };
+
+            recognition.onend = () => {
+                state.isRecording = false;
+                els.pttBtn.classList.remove('recording');
+                els.pttBtn.textContent = 'START MIC';
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                state.isRecording = false;
+                els.pttBtn.classList.remove('recording');
+                els.pttBtn.textContent = 'START MIC';
+            };
+        } else {
+            logSystem('Speech Recognition not supported in this browser.');
+            els.pttBtn.disabled = true;
+        }
+
+        els.pttBtn.addEventListener('click', () => {
+            if (!recognition) return;
+
+            if (state.isRecording) {
+                recognition.stop();
+            } else {
+                // Set selected microphone
+                // Note: Web Speech API doesn't directly support setting deviceId on the recognition object in all browsers,
+                // but we can try to ensure getUserMedia uses it if we were doing WebRTC audio streaming.
+                // For simple SpeechRecognition, it usually uses the system default or browser default.
+
+                recognition.start();
+                state.isRecording = true;
+                els.pttBtn.classList.add('recording');
+                els.pttBtn.textContent = 'LISTENING...';
+            }
+        });
+
+    </script>
+</body>
 
 </html>
