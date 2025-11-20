@@ -434,19 +434,6 @@ rel="stylesheet">
 
             </div>
 
-
-            <section class="panel chat-panel">
-                <div id="chat-log" class="chat-log">
-                    <div class="system-msg">System initialized. Waiting for
-                        connection...</div>
-                </div>
-                <div class="input-area">
-                    <input type="text" id="text-input" placeholder="Type message..." disabled>
-                    <button id="send-btn" disabled>SEND</button>
-                    <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
-                </div>
-            </section>
-
             <div class="right-panel">
                 <section class="panel preferences-panel">
                     <h2>Preferences</h2>
@@ -505,6 +492,54 @@ rel="stylesheet">
                                 <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
                             </div>
 
+                            <div class="pref-group">
+                                <label>ELEVENLABS API KEY</label>
+                                <div class="input-box">
+                                    <input type="password" id="elevenlabs-key" placeholder="Enter API Key">
+                                    <button id="verify-key-btn" class="icon-btn" title="Verify & Save">💾</button>
+                                    <span id="api-status" class="status-dot" title="Not Verified"></span>
+                                </div>
+                            </div>
+
+                            <div class="pref-group" style="margin-top: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="checkbox" id="hear-own-voice" style="width: auto;">
+                                    <label for="hear-own-voice"
+                                        style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Hear My Own
+                                        Voice</label>
+                                </div>
+                                <small>Play back your messages in your selected voice</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
+                        <label>NETWORK (ICE SERVERS)</label>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <input type="text" id="ice-urls" placeholder="stun:stun.l.google.com:19302">
+                            <input type="text" id="ice-user" placeholder="Username (Optional)">
+                            <input type="password" id="ice-pass" placeholder="Password (Optional)">
+                            <div style="display: flex; align-items: center; gap: 10px; margin: 5px 0;">
+                                <input type="checkbox" id="force-relay" style="width: auto;">
+                                <label for="force-relay" style="margin: 0; font-size: 0.8rem; color: #aaa;">Force
+                                    Relay (Hide IP) - Requires TURN</label>
+                            </div>
+                            <button id="save-net-btn">SAVE & RECONNECT</button>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="panel chat-panel">
+                <div id="chat-log" class="chat-log">
+                    <div class="system-msg">System initialized. Waiting for
+                        connection...</div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="text-input" placeholder="Type message..." disabled>
+                    <button id="send-btn" disabled>SEND</button>
+                    <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
+                </div>
+            </section>
         </main>
     </div>
 
