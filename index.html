@@ -424,30 +424,18 @@
                             <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
                         </div>
                     </div>
-                </div>
-                <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
-                    <label>NETWORK (ICE SERVERS)</label>
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <input type="text" id="ice-urls" placeholder="stun:stun.l.google.com:19302">
-                        <input type="text" id="ice-user" placeholder="Username (Optional)">
-                        <input type="password" id="ice-pass" placeholder="Password (Optional)">
-                        <button id="save-net-btn">SAVE & RECONNECT</button>
-                    </div>
-                </div>
-    </div>
-    </section>
 
-    <section class="panel chat-panel">
-        <div id="chat-log" class="chat-log">
-            <div class="system-msg">System initialized. Waiting for connection...</div>
-        </div>
-        <div class="input-area">
-            <input type="text" id="text-input" placeholder="Type message..." disabled>
-            <button id="send-btn" disabled>SEND</button>
-            <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
-        </div>
-    </section>
-    </main>
+                    <section class="panel chat-panel">
+                        <div id="chat-log" class="chat-log">
+                            <div class="system-msg">System initialized. Waiting for connection...</div>
+                        </div>
+                        <div class="input-area">
+                            <input type="text" id="text-input" placeholder="Type message..." disabled>
+                            <button id="send-btn" disabled>SEND</button>
+                            <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
+                        </div>
+                    </section>
+        </main>
     </div>
 
     <script>
@@ -465,62 +453,6 @@
             textInput: document.getElementById('text-input'),
             sendBtn: document.getElementById('send-btn'),
             pttBtn: document.getElementById('ptt-btn'),
-            voiceSelect: document.getElementById('voice-select'),
-            micSelect: document.getElementById('mic-select'),
-            refreshMicBtn: document.getElementById('refresh-mic-btn'),
-            inputToggles: document.querySelectorAll('.toggle-btn[id^="btn-input"]'),
-            outputToggles: document.querySelectorAll('.toggle-btn[id^="btn-output"]'),
-            iceUrls: document.getElementById('ice-urls'),
-            iceUser: document.getElementById('ice-user'),
-            icePass: document.getElementById('ice-pass'),
-            saveNetBtn: document.getElementById('save-net-btn')
-        };
-
-        // Load Network Settings
-        const savedIce = JSON.parse(localStorage.getItem('comms_ice_config') || '{}');
-        els.iceUrls.value = savedIce.urls || 'stun:stun.l.google.com:19302';
-        els.iceUser.value = savedIce.username || '';
-        els.icePass.value = savedIce.credential || '';
-
-        function getPeerConfig() {
-            const urls = els.iceUrls.value.trim();
-            const username = els.iceUser.value.trim();
-            const credential = els.icePass.value.trim();
-
-            const config = {
-                iceServers: [
-                    { urls: 'stun:stun.l.google.com:19302' } // Always include default
-                ]
-            };
-
-            if (urls) {
-                const customServer = { urls: urls };
-                if (username) customServer.username = username;
-                if (credential) customServer.credential = credential;
-                config.iceServers.push(customServer);
-            }
-            return config;
-        }
-
-        let peer = new Peer(getPeerConfig());
-
-        els.saveNetBtn.addEventListener('click', () => {
-            const config = {
-                urls: els.iceUrls.value.trim(),
-                username: els.iceUser.value.trim(),
-                credential: els.icePass.value.trim()
-            };
-            localStorage.setItem('comms_ice_config', JSON.stringify(config));
-            logSystem('Network settings saved. Reconnecting...');
-
-            peer.destroy();
-            peer = new Peer(getPeerConfig());
-            setupPeerEvents(peer);
-        });
-
-        function setupPeerEvents(p) {
-            p.on('open', id => { state.myId = id; els.myId.textContent = id; logSystem('Ready. Share your ID to connect.'); enableControls(true); });
-            p.on('connection', conn => { handleConnection(conn); });
             p.on('error', err => { logSystem(`Error: ${err.type}`, true); });
         }
 
