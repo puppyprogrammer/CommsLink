@@ -462,6 +462,14 @@
                                 <span id="api-status" class="status-dot" title="Not Verified"></span>
                             </div>
                         </div>
+
+                        <div class="pref-group" style="margin-top: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="hear-own-voice" style="width: auto;">
+                                <label for="hear-own-voice" style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Hear My Own Voice</label>
+                            </div>
+                            <small>Play back your messages in your selected voice</small>
+                        </div>
                     </div>
                 </div>
                 <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
@@ -504,7 +512,8 @@
             voiceAvatar: null,
             isRecording: false,
             elevenLabsVoices: [],
-            audioCache: new Map()
+            audioCache: new Map(),
+            hearOwnVoice: false
         };
 
         const els = {
@@ -531,7 +540,8 @@
             saveNetBtn: document.getElementById('save-net-btn'),
             elevenLabsKey: document.getElementById('elevenlabs-key'),
             verifyKeyBtn: document.getElementById('verify-key-btn'),
-            apiStatus: document.getElementById('api-status')
+            apiStatus: document.getElementById('api-status'),
+            hearOwnVoice: document.getElementById('hear-own-voice')
         };
 
 
@@ -916,6 +926,10 @@
                 if (text) {
                     logChat(state.displayName, text, true);
                     sendData({ type: 'chat', message: text, avatar: state.voiceAvatar });
+                    // Play back own voice if enabled
+                    if (state.hearOwnVoice) {
+                        speakText(text, state.voiceAvatar);
+                    }
                     els.textInput.value = '';
                 }
             }
@@ -935,6 +949,19 @@
             els.voiceSelect.addEventListener('change', (e) => {
                 state.voiceAvatar = e.target.value;
             });
+
+            // Hear Own Voice checkbox
+            const savedHearOwnVoice = localStorage.getItem('hear_own_voice');
+            if (savedHearOwnVoice === 'true') {
+                state.hearOwnVoice = true;
+                els.hearOwnVoice.checked = true;
+            }
+
+            els.hearOwnVoice.addEventListener('change', (e) => {
+                state.hearOwnVoice = e.target.checked;
+                localStorage.setItem('hear_own_voice', e.target.checked);
+            });
+
 
             els.updateNameBtn.addEventListener('click', () => {
                 state.displayName = els.displayNameInput.value || 'User';
