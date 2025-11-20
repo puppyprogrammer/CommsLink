@@ -94,6 +94,24 @@
             min-height: 0;
         }
 
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .chat-panel {
+            display: flex;
+            flex-direction: column;
+            resize: horizontal;
+            overflow: auto;
+            min-width: 500px;
+            border-left: 3px solid var(--accent-dim);
+            padding-left: 15px;
+        }
+
+
         .panel {
             background: var(--panel-bg);
             border: 1px solid var(--border-color);
@@ -387,6 +405,7 @@
         </header>
 
         <main>
+            <div class="sidebar">
             <section class="panel connection-panel">
                 <h2>Connection</h2>
                 <div class="connection-controls">
@@ -499,6 +518,7 @@
                     </div>
                 </div>
             </section>
+            </div>
 
             <section class="panel chat-panel">
                 <div id="chat-log" class="chat-log">
@@ -526,7 +546,8 @@
             elevenLabsVoices: [],
             audioCache: new Map(),
             hearOwnVoice: false,
-            inputLanguage: 'en'
+            inputLanguage: 'en',
+            outputLanguage: 'en'
         };
 
         const els = {
@@ -555,7 +576,8 @@
             verifyKeyBtn: document.getElementById('verify-key-btn'),
             apiStatus: document.getElementById('api-status'),
             hearOwnVoice: document.getElementById('hear-own-voice'),
-            inputLanguage: document.getElementById('input-language')
+            inputLanguage: document.getElementById('input-language'),
+            outputLanguage: document.getElementById('output-language')
         };
 
 
@@ -885,13 +907,23 @@
         }
 
         function handleData(data, peerId) {
-            if (data.type === 'chat') {
-                logChat(peerId, data.message);
-                if (state.outputMode === 'audio') {
-                    speakText(data.message, data.avatar);
+                if (data.type === 'chat') {
+                    // Translate incoming message if output language is not English
+                    translateFromEnglish(data.message, state.outputLanguage).then(translatedText => {
+                        // Show both original and translation if different
+                        if (data.message !== translatedText) {
+                            logChat(peerId, `${data.message} → ${translatedText}`);
+                        } else {
+                            logChat(peerId, data.message);
+                        }
+                        
+                        // Speak the translated text
+                        if (state.outputMode === 'audio') {
+                            speakText(translatedText, data.avatar);
+                        }
+                    });
                 }
             }
-        }
 
         function sendData(data) {
             state.connections.forEach(conn => conn.send(data));
@@ -1012,6 +1044,20 @@
             }
         });
 
+            // Output Language selector
+            const savedOutputLang = localStorage.getItem('output_language');
+            if (savedOutputLang) {
+                state.outputLanguage = savedOutputLang;
+                els.outputLanguage.value = savedOutputLang;
+            }
+
+            els.outputLanguage.addEventListener('change', (e) => {
+                state.outputLanguage = e.target.value;
+                localStorage.setItem('output_language', e.target.value);
+                logSystem(`Output language set to: ${e.target.options[e.target.selectedIndex].text}`);
+            });
+
+
 
 
         els.updateNameBtn.addEventListener('click', () => {
@@ -1064,6 +1110,31 @@
                     return text; // Fallback to original text
                 }
             }
+
+            // --- Reverse Translation Function ---
+            async function translateFromEnglish(text, targetLang) {
+                if (targetLang === 'en') return text; // No translation needed
+                
+                try {
+                    const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`);
+
+                    if (!response.ok) {
+                        throw new Error(`Translation failed: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data.responseStatus === 200 && data.responseData) {
+                        return data.responseData.translatedText;
+                    } else {
+                        throw new Error('Translation API returned invalid data');
+                    }
+                } catch (error) {
+                    console.error('Reverse translation error:', error);
+                    return text; // Fallback to original text
+                }
+            }
+
 
 
         async function speakText(text, voiceId) {
