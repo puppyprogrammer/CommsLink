@@ -594,21 +594,6 @@
 
         // Initialize voices
         updateVoiceSelect();
-            } else {
-                localStorage.removeItem('elevenlabs_api_key');
-                alert('API Key removed. Using browser voices.');
-                await updateVoiceSelect();
-            }
-        });
-
-        // Load saved API key
-        const savedKey = localStorage.getItem('elevenlabs_api_key');
-        if (savedKey) {
-            els.elevenLabsKey.value = savedKey;
-        }
-
-        // Initialize voices
-        updateVoiceSelect();
 
         // --- Human-Friendly ID Generation ---
         function generateFriendlyId() {
