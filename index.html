@@ -569,10 +569,12 @@
                 return;
             }
 
+    logSystem(`🎤 Requesting ElevenLabs... Voice: ${voiceId.substring(0, 6)}...`);
+
             // Check cache first
             const cacheKey = `${voiceId}_${text}`;
             if (state.audioCache.has(cacheKey)) {
-                // logSystem('📦 Using cached audio.');
+                logSystem('📦 Using cached audio.');
                 const audioBlob = state.audioCache.get(cacheKey);
                 playAudioBlob(audioBlob);
                 return;
@@ -958,11 +960,13 @@
             }
             loadVoices();
 
-            async function speakText(text, voiceId) {
+                        async function speakText(text, voiceId) {
+                logSystem(`🗣️ speakText called. VoiceID: ${voiceId}`);
                 if (voiceId && voiceId.startsWith('elevenlabs_')) {
                     const actualVoiceId = voiceId.replace('elevenlabs_', '');
                     await speakWithElevenLabs(text, actualVoiceId);
                 } else {
+                    logSystem(`Using browser voice (ID: ${voiceId})`);
                     speakWithBrowserVoice(text, voiceId || 'female');
                 }
             }
