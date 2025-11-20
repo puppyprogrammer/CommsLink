@@ -136,7 +136,8 @@
             gap: 5px;
         }
 
-        input[type="text"] {
+        input[type="text"],
+        input[type="password"] {
             background: #000;
             border: 1px solid var(--border-color);
             color: white;
@@ -232,6 +233,13 @@
             margin-bottom: 8px;
             font-size: 0.9rem;
             color: var(--text-secondary);
+        }
+
+        .pref-group small {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.75rem;
+            color: #666;
         }
 
         .toggle-group {
@@ -413,16 +421,7 @@
                         <label>VOICE AVATAR</label>
                         <div class="input-box">
                             <select id="voice-select">
-                                <option value="male">Male</option>
-                                <option value="female">Female</option>
-                                <option value="robot">Robot</option>
-                                <option value="male_deep">Male (Deep)</option>
-                                <option value="female_high">Female (High)</option>
-                                <option value="female_young">Female (Young)</option>
-                                <option value="female_soft">Female (Soft)</option>
-                                <option value="female_energetic">Female (Energetic)</option>
-                                <option value="female_calm">Female (Calm)</option>
-                                <option value="female_bright">Female (Bright)</option>
+                                <option value="loading">Loading voices...</option>
                             </select>
                             <button id="test-voice-btn" class="icon-btn" title="Test Voice">🔊</button>
                         </div>
@@ -436,6 +435,15 @@
                             <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
                         </div>
                     </div>
+                </div>
+                <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
+                    <label>ELEVENLABS API KEY (Optional)</label>
+                    <div class="input-box">
+                        <input type="password" id="elevenlabs-key" placeholder="Enter API Key for premium voices">
+                        <button id="save-key-btn" class="icon-btn" title="Save API Key">💾</button>
+                    </div>
+                    <small>For premium voice quality. Leave empty to use browser voices.</small>
+                    <small id="char-count" style="color: var(--accent-color);"></small>
                 </div>
                 <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
                     <label>NETWORK (ICE SERVERS)</label>
@@ -468,7 +476,18 @@
     </div>
 
     <script>
-        const state = { myId: null, displayName: 'User', connections: [], inputMode: 'voice', outputMode: 'audio', voiceAvatar: 'male', isRecording: false };
+        const state = {
+            myId: null,
+            displayName: 'User',
+            connections: [],
+            inputMode: 'voice',
+            outputMode: 'audio',
+            voiceAvatar: null,
+            isRecording: false,
+            elevenLabsVoices: [],
+            audioCache: new Map()
+        };
+
         const els = {
             myId: document.getElementById('my-id'),
             status: document.getElementById('status-indicator'),
@@ -490,8 +509,196 @@
             iceUser: document.getElementById('ice-user'),
             icePass: document.getElementById('ice-pass'),
             forceRelay: document.getElementById('force-relay'),
-            saveNetBtn: document.getElementById('save-net-btn')
+            saveNetBtn: document.getElementById('save-net-btn'),
+            elevenLabsKey: document.getElementById('elevenlabs-key'),
+            saveKeyBtn: document.getElementById('save-key-btn'),
+            charCount: document.getElementById('char-count')
         };
+
+        // --- ElevenLabs Integration ---
+        async function getElevenLabsVoices(apiKey) {
+            try {
+                const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+                    headers: {
+                        'xi-api-key': apiKey
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
+
+                const data = await response.json();
+                return data.voices || [];
+            } catch (error) {
+                console.error('Error fetching ElevenLabs voices:', error);
+                logSystem('Failed to load ElevenLabs voices. Using browser voices.');
+                return [];
+            }
+        }
+
+        async function speakWithElevenLabs(text, voiceId, apiKey) {
+            // Check cache first
+            const cacheKey = `${voiceId}_${text}`;
+            if (state.audioCache.has(cacheKey)) {
+                const audioBlob = state.audioCache.get(cacheKey);
+                playAudioBlob(audioBlob);
+                return;
+            }
+
+            try {
+                const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'xi-api-key': apiKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        model_id: 'eleven_monolingual_v1',
+                        voice_settings: {
+                            stability: 0.5,
+                            similarity_boost: 0.75
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`TTS API Error: ${response.status}`);
+                }
+
+                const audioBlob = await response.blob();
+
+                // Cache the audio (limit cache size)
+                if (state.audioCache.size > 50) {
+                    const firstKey = state.audioCache.keys().next().value;
+                    state.audioCache.delete(firstKey);
+                }
+                state.audioCache.set(cacheKey, audioBlob);
+
+                playAudioBlob(audioBlob);
+
+                // Update character count
+                updateCharacterCount(apiKey);
+            } catch (error) {
+                console.error('ElevenLabs TTS error:', error);
+                logSystem('ElevenLabs failed, falling back to browser voice.');
+                speakWithBrowserVoice(text, 'female'); // Fallback
+            }
+        }
+
+        function playAudioBlob(blob) {
+            const audioUrl = URL.createObjectURL(blob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+            audio.onended = () => URL.revokeObjectURL(audioUrl);
+        }
+
+        async function updateCharacterCount(apiKey) {
+            try {
+                const response = await fetch('https://api.elevenlabs.io/v1/user', {
+                    headers: {
+                        'xi-api-key': apiKey
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const used = data.subscription.character_count;
+                    const limit = data.subscription.character_limit;
+                    const remaining = limit - used;
+                    els.charCount.textContent = `Characters: ${remaining.toLocaleString()} / ${limit.toLocaleString()} remaining`;
+                }
+            } catch (error) {
+                console.error('Error fetching character count:', error);
+            }
+        }
+
+        async function updateVoiceSelect() {
+            const apiKey = localStorage.getItem('elevenlabs_api_key');
+
+            els.voiceSelect.innerHTML = '';
+
+            if (apiKey) {
+                // Load ElevenLabs voices
+                state.elevenLabsVoices = await getElevenLabsVoices(apiKey);
+
+                if (state.elevenLabsVoices.length > 0) {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = '🌟 ElevenLabs (Premium)';
+
+                    state.elevenLabsVoices.forEach(voice => {
+                        const option = document.createElement('option');
+                        option.value = `elevenlabs_${voice.voice_id}`;
+                        option.textContent = voice.name;
+                        optgroup.appendChild(option);
+                    });
+
+                    els.voiceSelect.appendChild(optgroup);
+
+                    // Set first ElevenLabs voice as default
+                    state.voiceAvatar = `elevenlabs_${state.elevenLabsVoices[0].voice_id}`;
+
+                    // Update character count
+                    updateCharacterCount(apiKey);
+                } else {
+                    addBrowserVoices();
+                }
+            } else {
+                addBrowserVoices();
+            }
+        }
+
+        function addBrowserVoices() {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = 'Browser Voices';
+
+            const browserVoices = [
+                { value: 'male', label: 'Male' },
+                { value: 'female', label: 'Female' },
+                { value: 'robot', label: 'Robot' },
+                { value: 'male_deep', label: 'Male (Deep)' },
+                { value: 'female_high', label: 'Female (High)' },
+                { value: 'female_young', label: 'Female (Young)' },
+                { value: 'female_soft', label: 'Female (Soft)' },
+                { value: 'female_energetic', label: 'Female (Energetic)' },
+                { value: 'female_calm', label: 'Female (Calm)' },
+                { value: 'female_bright', label: 'Female (Bright)' }
+            ];
+
+            browserVoices.forEach(v => {
+                const option = document.createElement('option');
+                option.value = v.value;
+                option.textContent = v.label;
+                optgroup.appendChild(option);
+            });
+
+            els.voiceSelect.appendChild(optgroup);
+            state.voiceAvatar = 'female';
+        }
+
+        // Save API Key
+        els.saveKeyBtn.addEventListener('click', async () => {
+            const key = els.elevenLabsKey.value.trim();
+            if (key) {
+                localStorage.setItem('elevenlabs_api_key', key);
+                alert('API Key saved! Reloading voices...');
+                await updateVoiceSelect();
+            } else {
+                localStorage.removeItem('elevenlabs_api_key');
+                alert('API Key removed. Using browser voices.');
+                await updateVoiceSelect();
+            }
+        });
+
+        // Load saved API key
+        const savedKey = localStorage.getItem('elevenlabs_api_key');
+        if (savedKey) {
+            els.elevenLabsKey.value = savedKey;
+        }
+
+        // Initialize voices
+        updateVoiceSelect();
 
         // --- Human-Friendly ID Generation ---
         function generateFriendlyId() {
@@ -548,7 +755,6 @@
             location.reload();
         });
 
-
         // --- PeerJS Initialization with Friendly ID ---
         const friendlyId = generateFriendlyId();
         const peer = new Peer(friendlyId, getPeerConfig().config);
@@ -569,14 +775,13 @@
         peer.on('error', (err) => {
             console.error(err);
             logSystem(`Error: ${err.type}`);
-            // Handle ID collision
             if (err.type === 'unavailable-id') {
                 logSystem('ID collision detected, please refresh to generate a new ID.');
             }
         });
 
         els.connectBtn.addEventListener('click', () => {
-            const peerId = els.peerIdInput.value.trim().toUpperCase(); // Accept lowercase input
+            const peerId = els.peerIdInput.value.trim().toUpperCase();
             if (peerId) {
                 const conn = peer.connect(peerId);
                 handleConnection(conn);
@@ -704,13 +909,23 @@
         }
         loadVoices();
 
-        function speakText(text, avatar) {
+        async function speakText(text, voiceId) {
+            const apiKey = localStorage.getItem('elevenlabs_api_key');
+
+            if (apiKey && voiceId && voiceId.startsWith('elevenlabs_')) {
+                const actualVoiceId = voiceId.replace('elevenlabs_', '');
+                await speakWithElevenLabs(text, actualVoiceId, apiKey);
+            } else {
+                speakWithBrowserVoice(text, voiceId || 'female');
+            }
+        }
+
+        function speakWithBrowserVoice(text, avatar) {
             if (synth.speaking) { /* synth.cancel(); */ }
             const utter = new SpeechSynthesisUtterance(text);
             if (voices.length === 0) loadVoices();
 
             let sel = null;
-            // Enhanced Voice Selection Logic
             if (avatar === 'female') {
                 sel = voices.find(v => v.name.includes('Google US English') || v.name.includes('Microsoft Zira') || v.name.includes('Female'));
                 if (!sel) { utter.pitch = 1.2; utter.rate = 1.1; }
@@ -748,12 +963,9 @@
         }
 
         // Test Voice Button Logic
-        const testVoiceBtn = document.getElementById('test-voice-btn');
-        if (testVoiceBtn) {
-            testVoiceBtn.addEventListener('click', () => {
-                speakText("System audio check. Voice systems nominal.", state.voiceAvatar);
-            });
-        }
+        els.testVoiceBtn.addEventListener('click', () => {
+            speakText("System audio check. Voice systems nominal.", state.voiceAvatar);
+        });
 
         // --- Microphone Handling ---
         async function getMicrophones() {
