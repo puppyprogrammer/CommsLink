@@ -104,11 +104,14 @@
         .chat-panel {
             display: flex;
             flex-direction: column;
-            resize: horizontal;
-            overflow: auto;
-            min-width: 500px;
-            border-left: 3px solid var(--accent-dim);
-            padding-left: 15px;
+            overflow: hidden;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
         }
 
 
@@ -438,7 +441,10 @@
                 </div>
             </section>
 
-            <section class="panel preferences-panel">
+            </div>
+
+            <div class="right-panel">
+<section class="panel preferences-panel">
                 <h2>Preferences</h2>
                 <div class="pref-grid">
                     <div class="pref-group">
@@ -473,6 +479,16 @@
                                 <option value="de">German (Deutsch)</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="pref-group">
+                        <label>OUTPUT LANGUAGE</label>
+                        <select id="output-language">
+                            <option value="en">English</option>
+                            <option value="lo">Laotian (ລາວ)</option>
+                            <option value="he">Hebrew (עברית)</option>
+                            <option value="es">Spanish (Español)</option>
+                            <option value="de">German (Deutsch)</option>
+                        </select>
                     </div>
                     <div class="pref-group">
                         <label>MICROPHONE</label>
