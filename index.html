@@ -935,23 +935,29 @@
             if (e.key === 'Enter') sendMessage();
         });
 
-        async function sendMessage() {
-            const text = els.textInput.value.trim();
-            if (text) {
-                // Translate to English if needed
-                const translatedText = await translateToEnglish(text, state.inputLanguage);
-
-                logChat(state.displayName, translatedText, true);
-                sendData({ type: 'chat', message: translatedText, avatar: state.voiceAvatar });
-                logChat(state.displayName, text, true);
-                sendData({ type: 'chat', message: text, avatar: state.voiceAvatar });
-                // Play back own voice if enabled
-                if (state.hearOwnVoice) {
-                    speakText(text, state.voiceAvatar);
+                    async function sendMessage() {
+                const text = els.textInput.value.trim();
+                if (text) {
+                    // Translate to English if needed
+                    const translatedText = await translateToEnglish(text, state.inputLanguage);
+                    
+                    // Show both original and translation in chat if different
+                    if (text !== translatedText) {
+                        logChat(state.displayName, `${text} → ${translatedText}`, true);
+                    } else {
+                        logChat(state.displayName, text, true);
+                    }
+                    
+                    // Send the English translation to peer
+                    sendData({ type: 'chat', message: translatedText, avatar: state.voiceAvatar });
+                    
+                    // Play back own voice if enabled (use translated text)
+                    if (state.hearOwnVoice) {
+                        speakText(translatedText, state.voiceAvatar);
+                    }
+                    els.textInput.value = '';
                 }
-                els.textInput.value = '';
             }
-        }
 
         // --- Preferences ---
         document.querySelectorAll('.toggle-btn').forEach(btn => {
