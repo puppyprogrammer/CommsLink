@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMMS LINK</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0f;
+            --panel-bg: #13131f;
+            --text-primary: #e0e0e0;
+            --text-secondary: #888;
+            --accent-color: #00f3ff;
+            --accent-dim: #005f66;
+            --border-color: #333;
+            --success-color: #00ff9d;
+            --danger-color: #ff4444;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Rajdhani', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 10px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 2px solid var(--accent-dim);
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-color);
+            text-shadow: 0 0 10px var(--accent-dim);
+        }
+
+        .status-indicator {
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: #333;
+            color: #666;
+        }
+
+        .status-indicator.online {
+            background: var(--accent-dim);
+            color: white;
+            box-shadow: 0 0 10px var(--accent-dim);
+        }
+
+        .status-indicator.offline {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 0;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        h2 {
+            margin: 0 0 15px 0;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+        }
+
+        /* Connection Panel */
+        .connection-controls {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .input-box {
+            display: flex;
+            gap: 5px;
+        }
+
+        input[type="text"] {
+            background: #000;
+            border: 1px solid var(--border-color);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            flex-grow: 1;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        #my-id {
+            font-family: 'Roboto Mono', monospace;
+            color: var(--accent-color);
+            font-weight: bold;
+            padding: 8px;
+            background: #000;
+            border: 1px solid var(--accent-dim);
+            border-radius: 4px;
+            display: block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        button {
+            background: var(--accent-dim);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: black;
+        }
+
+        button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .icon-btn {
+            padding: 5px 10px;
+        }
+
+        .roster {
+            background: #000;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            min-height: 50px;
+        }
+
+        .roster-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .roster-item {
+            background: #222;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            border: 1px solid #444;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .roster-item::before {
+            content: '●';
+            color: var(--success-color);
+            font-size: 0.8rem;
+        }
+
+        /* Preferences Panel */
+        .pref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .pref-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-group {
+            display: flex;
+            background: #000;
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            background: transparent;
+            color: #666;
+            padding: 5px;
+        }
+
+        .toggle-btn.active {
+            background: var(--accent-dim);
+            color: white;
+        }
+
+        select {
+            width: 100%;
+            background: #000;
+            color: white;
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 4px;
+        }
+
+        /* Chat Panel */
+        .chat-panel {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .chat-log {
+            flex-grow: 1;
+            overflow-y: auto;
+            background: #000;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .message {
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .message .sender {
+            font-weight: bold;
+            color: var(--accent-color);
+            margin-right: 5px;
+        }
+
+        .message .content {
+            color: #ddd;
+        }
+
+        .message.system {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .message.self .sender {
+            color: #aaa;
+        }
+
+        /* Input Area */
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #text-input {
+            flex-grow: 1;
+        }
+
+        .ptt-btn {
+            flex-grow: 1;
+            background: #333;
+            border: 1px solid var(--border-color);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+        }
+
+        .ptt-btn:not(:disabled):hover {
+            background: #444;
+            color: white;
+        }
+
+        .ptt-btn.recording {
+            background: var(--danger-color);
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>COMMS LINK <span class="status-indicator offline" id="status-indicator">OFFLINE</span></h1>
+        </header>
+
+        <main>
+            <section class="panel connection-panel">
+                <h2>Connection</h2>
+                <div class="connection-controls">
+                    <div class="control-group">
+                        <label>My Display Name</label>
+                        <div class="input-box">
+                            <input type="text" id="display-name" placeholder="Enter Name" value="User">
+                            <button id="update-name-btn" class="icon-btn" title="Update Name">💾</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>My ID</label>
+                        <div class="input-box">
+                            <span id="my-id">Connecting...</span>
+                            <button id="copy-id-btn" class="icon-btn" title="Copy ID">📋</button>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label>Connect to Friend</label>
+                        <div class="input-box">
+                            <input type="text" id="peer-id-input" placeholder="Enter Friend's ID">
+                            <button id="connect-btn">JOIN</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="roster">
+                    <label style="font-size: 0.8rem; color: #888; text-transform: uppercase;">Connected Users</label>
+                    <ul id="roster-list" class="roster-list">
+                        <!-- Populated by JS -->
+                    </ul>
+                </div>
+            </section>
+
+            <section class="panel preferences-panel">
+                <h2>Preferences</h2>
+                <div class="pref-grid">
+                    <div class="pref-group">
+                        <label>INPUT MODE</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">🎙️ Voice</button>
+                            <button class="toggle-btn" data-mode="text" id="btn-input-text">⌨️ Text</button>
+                        </div>
+                    </div>
+                    <div class="pref-group">
+                        <label>OUTPUT MODE</label>
+                        <div class="toggle-group">
+                            <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">🔊 Audio</button>
+                            <button class="toggle-btn" data-mode="text" id="btn-output-text">💬 Text</button>
+                        </div>
+                    </div>
+                    <div class="pref-group">
+                        <label>VOICE AVATAR</label>
+                        <select id="voice-select">
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="robot">Robot</option>
+                        </select>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel chat-panel">
+                <div id="chat-log" class="chat-log">
+                    <div class="system-msg">System initialized. Waiting for connection...</div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="text-input" placeholder="Type message..." disabled>
+                    <button id="send-btn" disabled>SEND</button>
+                    <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- State ---
+        const state = {
+            myId: null,
+            displayName: 'User',
+            connections: [], // Array of active connections
+            inputMode: 'voice',
+            outputMode: 'audio',
+            voiceAvatar: 'male',
+            isRecording: false
+        };
+
+        // --- DOM Elements ---
+        const els = {
+            myId: document.getElementById('my-id'),
+            status: document.getElementById('status-indicator'),
+            peerIdInput: document.getElementById('peer-id-input'),
+            connectBtn: document.getElementById('connect-btn'),
+            copyBtn: document.getElementById('copy-id-btn'),
+            displayName: document.getElementById('display-name'),
+            updateNameBtn: document.getElementById('update-name-btn'),
+            rosterList: document.getElementById('roster-list'),
+            chatLog: document.getElementById('chat-log'),
+            textInput: document.getElementById('text-input'),
+            sendBtn: document.getElementById('send-btn'),
+            pttBtn: document.getElementById('ptt-btn'),
+            voiceSelect: document.getElementById('voice-select'),
+            inputToggles: document.querySelectorAll('.toggle-btn[id^="btn-input"]'),
+            outputToggles: document.querySelectorAll('.toggle-btn[id^="btn-output"]')
+        };
+
+        // --- Initialization ---
+        const peer = new Peer();
+
+        peer.on('open', (id) => {
+            state.myId = id;
+            els.myId.textContent = id;
+            logSystem('Ready. Share your ID to connect.');
+            enableControls(true);
+        });
+
+        peer.on('connection', (conn) => {
+            handleConnection(conn);
+        });
+
+        peer.on('error', (err) => {
+            logSystem(`Error: ${err.type}`, true);
+        });
+
+        // --- Connection Handling ---
+        els.connectBtn.addEventListener('click', () => {
+            const destId = els.peerIdInput.value.trim();
+            if (!destId) return;
+            if (state.connections.some(c => c.peer === destId)) {
+                logSystem(`Already connected to ${destId}`);
+                return;
+            }
+            logSystem(`Connecting to ${destId}...`);
+            const conn = peer.connect(destId);
+            handleConnection(conn);
+        });
+
+        els.copyBtn.addEventListener('click', () => {
+            if (state.myId) {
+                navigator.clipboard.writeText(state.myId);
+                logSystem('ID copied to clipboard.');
+            }
+        });
+
+        els.updateNameBtn.addEventListener('click', () => {
+            const newName = els.displayName.value.trim();
+            if (newName) {
+                state.displayName = newName;
+                logSystem(`Name updated to: ${newName}`);
+                broadcast({ type: 'info', name: state.displayName });
+            }
+        });
+
+        function handleConnection(conn) {
+            state.connections.push(conn);
+            updateStatus();
+
+            conn.on('open', () => {
+                logSystem(`Connected to ${conn.peer}`);
+                // Send handshake with my name
+                conn.send({ type: 'info', name: state.displayName });
+                updateRoster();
+            });
+
+            conn.on('data', (data) => {
+                handleIncomingData(conn, data);
+            });
+
+            conn.on('close', () => {
+                logSystem(`Disconnected from ${conn.peer}`);
+                state.connections = state.connections.filter(c => c !== conn);
+                updateStatus();
+                updateRoster();
+            });
+        }
+
+        function updateStatus() {
+            if (state.connections.length > 0) {
+                els.status.textContent = `ONLINE (${state.connections.length})`;
+                els.status.classList.remove('offline');
+                els.status.classList.add('online');
+            } else {
+                els.status.textContent = 'OFFLINE';
+                els.status.classList.remove('online');
+                els.status.classList.add('offline');
+            }
+        }
+
+        function updateRoster() {
+            els.rosterList.innerHTML = '';
+            // Add self
+            addRosterItem(state.displayName + ' (You)');
+
+            // Add peers (we store their name in conn.metadata or a separate map, 
+            // but for simplicity we'll just use what they sent in 'info' or their ID)
+            state.connections.forEach(conn => {
+                const name = conn.displayName || conn.peer;
+                addRosterItem(name);
+            });
+        }
+
+        function addRosterItem(name) {
+            const li = document.createElement('li');
+            li.className = 'roster-item';
+            li.textContent = name;
+            els.rosterList.appendChild(li);
+        }
+
+        // --- Messaging Logic ---
+        function broadcast(payload) {
+            state.connections.forEach(conn => {
+                if (conn.open) conn.send(payload);
+            });
+        }
+
+        function sendMessage(text) {
+            const payload = {
+                type: 'chat',
+                text: text,
+                avatar: state.voiceAvatar,
+                senderName: state.displayName
+            };
+
+            broadcast(payload);
+            logChat('ME', text, true);
+        }
+
+        function handleIncomingData(conn, data) {
+            if (data.type === 'info') {
+                // Handshake / Name update
+                if (data.name) {
+                    const oldName = conn.displayName;
+                    conn.displayName = data.name;
+                    if (oldName && oldName !== data.name) {
+                        logSystem(`${oldName} renamed to ${data.name}`);
+                    } else if (!oldName) {
+                        logSystem(`${data.name} joined.`);
+                    }
+                    updateRoster();
+                }
+            } else if (data.type === 'chat') {
+                const { text, avatar, senderName } = data;
+                logChat(senderName || 'FRIEND', text);
+                if (state.outputMode === 'audio') {
+                    speakText(text, avatar);
+                }
+            }
+        }
+
+        // --- UI Logic ---
+        function enableControls(enabled) {
+            els.textInput.disabled = !enabled;
+            els.sendBtn.disabled = !enabled;
+            els.pttBtn.disabled = !enabled;
+            if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+                els.pttBtn.disabled = true;
+            }
+        }
+
+        function logSystem(msg, isError = false) {
+            const div = document.createElement('div');
+            div.className = `message system ${isError ? 'error' : ''}`;
+            div.textContent = `[SYS] ${msg}`;
+            els.chatLog.appendChild(div);
+            els.chatLog.scrollTop = els.chatLog.scrollHeight;
+        }
+
+        function logChat(sender, text, isSelf = false) {
+            const div = document.createElement('div');
+            div.className = `message ${isSelf ? 'self' : ''}`;
+            div.innerHTML = `<span class="sender">${sender}:</span><span class="content">${text}</span>`;
+            els.chatLog.appendChild(div);
+            els.chatLog.scrollTop = els.chatLog.scrollHeight;
+        }
+
+        // --- Preferences ---
+        els.inputToggles.forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.inputMode = btn.dataset.mode;
+                updateToggleUI(els.inputToggles, state.inputMode);
+
+                if (state.inputMode === 'voice') {
+                    els.textInput.style.display = 'none';
+                    els.sendBtn.style.display = 'none';
+                    els.pttBtn.style.display = 'block';
+                } else {
+                    els.textInput.style.display = 'block';
+                    els.sendBtn.style.display = 'block';
+                    els.pttBtn.style.display = 'none';
+                    stopRecording();
+                }
+            });
+        });
+
+        els.outputToggles.forEach(btn => {
+            btn.addEventListener('click', () => {
+                state.outputMode = btn.dataset.mode;
+                updateToggleUI(els.outputToggles, state.outputMode);
+            });
+        });
+
+        els.voiceSelect.addEventListener('change', (e) => {
+            state.voiceAvatar = e.target.value;
+        });
+
+        function updateToggleUI(group, activeMode) {
+            group.forEach(btn => {
+                if (btn.dataset.mode === activeMode) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+
+        els.textInput.style.display = 'none';
+        els.sendBtn.style.display = 'none';
+
+        // --- Text Input ---
+        els.sendBtn.addEventListener('click', () => {
+            const text = els.textInput.value.trim();
+            if (text) {
+                sendMessage(text);
+                els.textInput.value = '';
+            }
+        });
+
+        els.textInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') els.sendBtn.click();
+        });
+
+        // --- Voice Input ---
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        let recognition = null;
+
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+
+            recognition.onresult = (event) => {
+                const lastResult = event.results[event.results.length - 1];
+                if (lastResult.isFinal) {
+                    const text = lastResult[0].transcript.trim();
+                    if (text) {
+                        sendMessage(text);
+                    }
+                }
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Speech recognition error', event.error);
+                if (event.error === 'not-allowed') {
+
+                    els.pttBtn.addEventListener('click', () => {
+                        if (!recognition) return;
+                        if (state.isRecording) stopRecording();
+                        else startRecording();
+                    });
+
+                    function startRecording() {
+                        if (!recognition) return;
+                        try {
+                            recognition.start();
+                            state.isRecording = true;
+                            updateMicButton(true);
+                            logSystem('Microphone ON. Speak now.');
+                        } catch (e) { console.error(e); }
+                    }
+
+                    function stopRecording() {
+                        if (!recognition) return;
+                        state.isRecording = false;
+                        recognition.stop();
+                        updateMicButton(false);
+                        logSystem('Microphone OFF.');
+                    }
+
+                    function updateMicButton(isRecording) {
+                        if (isRecording) {
+                            els.pttBtn.textContent = 'LISTENING...';
+                            els.pttBtn.style.background = '#ff4444';
+                            els.pttBtn.classList.add('recording');
+                        } else {
+                            els.pttBtn.textContent = 'START MIC';
+                            els.pttBtn.style.background = '';
+                            els.pttBtn.classList.remove('recording');
+                        }
+                    }
+
+                    // --- Text to Speech (Output) ---
+                    const synth = window.speechSynthesis;
+
+                    function speakText(text, avatarType) {
+                        if (synth.speaking) {
+                            // synth.cancel();
+                        }
+
+                        const utterThis = new SpeechSynthesisUtterance(text);
+                        const voices = synth.getVoices();
+                        let selectedVoice = null;
+
+                        if (avatarType === 'female') {
+                            selectedVoice = voices.find(v => v.name.includes('Female') || v.name.includes('Google US English'));
+                            utterThis.pitch = 1.2;
+                            utterThis.rate = 1.1;
+                        } else if (avatarType === 'male') {
+                            selectedVoice = voices.find(v => v.name.includes('Male') || v.name.includes('Google UK English Male'));
+                            utterThis.pitch = 0.8;
+                            utterThis.rate = 0.9;
+                        } else {
+                            // Robot
+                            selectedVoice = voices.find(v => v.name.includes('Zira') || v.name.includes('Google US English'));
+                            utterThis.pitch = 0.5;
+                            utterThis.rate = 0.8;
+                        }
+
+                        if (selectedVoice) {
+                            utterThis.voice = selectedVoice;
+                        }
+
+                        synth.speak(utterThis);
+                    }
+
+                    synth.getVoices();
+    </script>
+</body>
+
+</html>

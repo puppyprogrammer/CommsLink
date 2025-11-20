@@ -1,0 +1,6 @@
+node_modules/
+electron_dist/
+dist/
+.env
+*.log
+.DS_Store
