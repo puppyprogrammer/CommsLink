@@ -593,7 +593,39 @@
         }
 
         // Initialize voices
+        updateVoiceSelect();
+            } else {
+                localStorage.removeItem('elevenlabs_api_key');
+                alert('API Key removed. Using browser voices.');
+                await updateVoiceSelect();
+            }
+        });
+
+        // Load saved API key
+        const savedKey = localStorage.getItem('elevenlabs_api_key');
+        if (savedKey) {
+            els.elevenLabsKey.value = savedKey;
+        }
+
+        // Initialize voices
+        updateVoiceSelect();
+
         // --- Human-Friendly ID Generation ---
+        function generateFriendlyId() {
+            const digits = Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+            const letters = String.fromCharCode(
+                65 + Math.floor(Math.random() * 26),
+                65 + Math.floor(Math.random() * 26)
+            );
+            return digits + letters;
+        }
+
+        // --- Network Settings Management ---
+        function loadNetworkSettings() {
+            const saved = localStorage.getItem('comms_network_settings');
+            if (saved) {
+                try {
+                    const config = JSON.parse(saved);
                     els.iceUrls.value = config.iceServers[0].urls;
                     if (config.iceServers[0].username) els.iceUser.value = config.iceServers[0].username;
                     if (config.iceServers[0].credential) els.icePass.value = config.iceServers[0].credential;
