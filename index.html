@@ -358,6 +358,18 @@
                 box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
             }
         }
+    
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #555;
+            display: inline-block;
+            margin-left: 5px;
+        }
+        .status-dot.valid { background-color: #4caf50; box-shadow: 0 0 5px #4caf50; }
+        .status-dot.invalid { background-color: #f44336; box-shadow: 0 0 5px #f44336; }
+    
     </style>
 </head>
 
@@ -434,7 +446,16 @@
                             </select>
                             <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
                         </div>
+                    
+                <div class="pref-group">
+                    <label>ELEVENLABS API KEY</label>
+                    <div class="input-box">
+                        <input type="password" id="elevenlabs-key" placeholder="Enter API Key">
+                        <button id="verify-key-btn" class="icon-btn" title="Verify & Save">💾</button>
+                        <span id="api-status" class="status-dot" title="Not Verified"></span>
                     </div>
+                </div>
+                </div>
                 </div>
                 <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
                     <label>NETWORK (ICE SERVERS)</label>
@@ -500,12 +521,47 @@
             iceUser: document.getElementById('ice-user'),
             icePass: document.getElementById('ice-pass'),
             forceRelay: document.getElementById('force-relay'),
-            saveNetBtn: document.getElementById('save-net-btn')
+            saveNetBtn: document.getElementById('save-net-btn'),
+            elevenLabsKey: document.getElementById('elevenlabs-key'),
+            verifyKeyBtn: document.getElementById('verify-key-btn'),
+            apiStatus: document.getElementById('api-status')
         };
 
-        // --- ElevenLabs Integration (Hardcoded API Key) ---
-        const ELEVENLABS_API_KEY = 'sk_be25dc0f6f5fa129d41fddd575f9f1bcf68afe31eca594a8';
+        
+        // --- ElevenLabs Integration (User Provided) ---
+        async function verifyElevenLabsKey(key) {
+            try {
+                const response = await fetch('https://api.elevenlabs.io/v1/user', {
+                    headers: { 'xi-api-key': key }
+                });
+                return response.ok;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        async function fetchElevenLabsVoices(key) {
+            try {
+                const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+                    headers: { 'xi-api-key': key }
+                });
+                if (!response.ok) throw new Error('Failed to fetch voices');
+                const data = await response.json();
+                return data.voices;
+            } catch (e) {
+                console.error('Error fetching voices:', e);
+                return [];
+            }
+        }
+
         async function speakWithElevenLabs(text, voiceId) {
+            const key = localStorage.getItem('elevenlabs_api_key');
+            if (!key) {
+                logSystem('No ElevenLabs API key found. Using browser voice.');
+                speakWithBrowserVoice(text, 'female');
+                return;
+            }
+
             // Check cache first
             const cacheKey = `${voiceId}_${text}`;
             if (state.audioCache.has(cacheKey)) {
@@ -518,7 +574,7 @@
                 const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
                     method: 'POST',
                     headers: {
-                        'xi-api-key': ELEVENLABS_API_KEY,
+                        'xi-api-key': key,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
@@ -532,6 +588,10 @@
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                         logSystem('ElevenLabs API Key Invalid/Expired.');
+                         updateApiStatus(false);
+                    }
                     throw new Error(`TTS API Error: ${response.status}`);
                 }
 
@@ -552,6 +612,7 @@
             }
         }
 
+
         function playAudioBlob(blob) {
             const audioUrl = URL.createObjectURL(blob);
             const audio = new Audio(audioUrl);
@@ -559,16 +620,42 @@
             audio.onended = () => URL.revokeObjectURL(audioUrl);
         }
 
-        function updateVoiceSelect() {
+        
+        async function updateVoiceSelect() {
             els.voiceSelect.innerHTML = '';
             
-            // Add ElevenLabs premium voice first
-            const premiumOption = document.createElement('option');
-            premiumOption.value = 'elevenlabs_m3yAHyFEFKtbCIM5n7GF';
-            premiumOption.textContent = 'ðŸŒŸ Premium Voice';
-            els.voiceSelect.appendChild(premiumOption);
+            const key = localStorage.getItem('elevenlabs_api_key');
+            let elVoices = [];
+            
+            if (key) {
+                // Add loading option while fetching
+                const loadingOpt = document.createElement('option');
+                loadingOpt.text = "Loading ElevenLabs...";
+                els.voiceSelect.appendChild(loadingOpt);
+                
+                elVoices = await fetchElevenLabsVoices(key);
+                
+                // Remove loading
+                els.voiceSelect.innerHTML = '';
+            }
+
+            // Add ElevenLabs voices
+            if (elVoices.length > 0) {
+                const group = document.createElement('optgroup');
+                group.label = "ElevenLabs";
+                elVoices.forEach(v => {
+                    const option = document.createElement('option');
+                    option.value = `elevenlabs_${v.voice_id}`;
+                    option.textContent = `🌟 ${v.name}`;
+                    group.appendChild(option);
+                });
+                els.voiceSelect.appendChild(group);
+            }
             
             // Add browser voices
+            const browserGroup = document.createElement('optgroup');
+            browserGroup.label = "Browser Voices";
+            
             const browserVoices = [
                 { value: 'male', label: 'Male' },
                 { value: 'female', label: 'Female' },
@@ -586,11 +673,65 @@
                 const option = document.createElement('option');
                 option.value = v.value;
                 option.textContent = v.label;
-                els.voiceSelect.appendChild(option);
+                browserGroup.appendChild(option);
             });
+            els.voiceSelect.appendChild(browserGroup);
             
-            state.voiceAvatar = 'elevenlabs_m3yAHyFEFKtbCIM5n7GF';
+            // Restore selection if possible, else default
+            if (state.voiceAvatar && (state.voiceAvatar.startsWith('elevenlabs_') ? elVoices.some(v => `elevenlabs_${v.voice_id}` === state.voiceAvatar) : true)) {
+                 els.voiceSelect.value = state.voiceAvatar;
+            } else {
+                 // Default to first EL voice if available, else female
+                 if (elVoices.length > 0) {
+                     state.voiceAvatar = `elevenlabs_${elVoices[0].voice_id}`;
+                     els.voiceSelect.value = state.voiceAvatar;
+                 } else {
+                     state.voiceAvatar = 'female';
+                     els.voiceSelect.value = 'female';
+                 }
+            }
         }
+
+
+        
+        function updateApiStatus(isValid) {
+            els.apiStatus.className = 'status-dot ' + (isValid ? 'valid' : 'invalid');
+            els.apiStatus.title = isValid ? 'Verified' : 'Invalid/Not Verified';
+        }
+
+        els.verifyKeyBtn.addEventListener('click', async () => {
+            const key = els.elevenLabsKey.value.trim();
+            if (!key) return;
+            
+            els.verifyKeyBtn.disabled = true;
+            els.verifyKeyBtn.textContent = '⏳';
+            
+            const isValid = await verifyElevenLabsKey(key);
+            
+            els.verifyKeyBtn.disabled = false;
+            els.verifyKeyBtn.textContent = '💾';
+            
+            updateApiStatus(isValid);
+            
+            if (isValid) {
+                localStorage.setItem('elevenlabs_api_key', key);
+                alert('API Key Verified & Saved!');
+                await updateVoiceSelect();
+            } else {
+                alert('Invalid API Key');
+            }
+        });
+
+        // Load saved key on init
+        const savedKey = localStorage.getItem('elevenlabs_api_key');
+        if (savedKey) {
+            els.elevenLabsKey.value = savedKey;
+            verifyElevenLabsKey(savedKey).then(isValid => {
+                updateApiStatus(isValid);
+                if(isValid) updateVoiceSelect();
+            });
+        }
+
 
         // Initialize voices
         updateVoiceSelect();
