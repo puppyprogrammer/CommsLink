@@ -1,404 +1,395 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500,700&family=Roboto+Mono:wght@400,700&display=swap"
+rel="stylesheet">
+<style>
+    :root {
+        --bg-color: #0a0a0f;
+        --panel-bg: #13131f;
+        --text-primary: #e0e0e0;
+        --text-secondary: #888;
+        --accent-color: #00f3ff;
+        --accent-dim: #005f66;
+        --border-color: #333;
+        --success-color: #00ff9d;
+        --danger-color: #ff4444;
+    }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>COMMS LINK</title>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500,700&family=Roboto+Mono:wght@400,700&display=swap"
-        rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #0a0a0f;
-            --panel-bg: #13131f;
-            --text-primary: #e0e0e0;
-            --text-secondary: #888;
-            --accent-color: #00f3ff;
-            --accent-dim: #005f66;
-            --border-color: #333;
-            --success-color: #00ff9d;
-            --danger-color: #ff4444;
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        font-family: 'Rajdhani', sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+        width: 100%;
+        padding: 10px;
+    }
+
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 2px solid var(--accent-dim);
+        margin-bottom: 10px;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--accent-color);
+        text-shadow: 0 0 10px var(--accent-dim);
+    }
+
+    .status-indicator {
+        font-family: 'Roboto Mono', monospace;
+        font-size: 0.9rem;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: #333;
+        color: #666;
+    }
+
+    .status-indicator.online {
+        background: var(--accent-dim);
+        color: white;
+        box-shadow: 0 0 10px var(--accent-dim);
+    }
+
+    .status-indicator.offline {
+        background: var(--danger-color);
+        color: white;
+    }
+
+    main {
+        flex-grow: 1;
+        display: grid;
+        grid-template-columns: 320px 1fr 320px;
+        gap: 15px;
+        overflow: hidden;
+    }
+
+    .left-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow-y: auto;
+    }
+
+    .chat-panel {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        overflow-y: auto;
+    }
+
+
+    .panel {
+        background: var(--panel-bg);
+        border: 1px solid var(--border-color);
+        padding: 15px;
+        border-radius: 8px;
+    }
+
+    h2 {
+        margin: 0 0 15px 0;
+        font-size: 1.2rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-color);
+        padding-bottom: 5px;
+    }
+
+    .connection-controls {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 15px;
+    }
+
+    .control-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .control-group label {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+    }
+
+    .input-box {
+        display: flex;
+        gap: 5px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+        background: #000;
+        border: 1px solid var(--border-color);
+        color: white;
+        padding: 8px;
+        border-radius: 4px;
+        flex-grow: 1;
+        font-family: 'Roboto Mono', monospace;
+    }
+
+    #my-id {
+        font-family: 'Roboto Mono', monospace;
+        color: var(--accent-color);
+        font-weight: bold;
+        padding: 8px;
+        background: #000;
+        border: 1px solid var(--accent-dim);
+        border-radius: 4px;
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    button {
+        background: var(--accent-dim);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: bold;
+        text-transform: uppercase;
+        transition: background 0.2s;
+    }
+
+    button:hover {
+        background: var(--accent-color);
+        color: black;
+    }
+
+    button:disabled {
+        background: #333;
+        color: #666;
+        cursor: not-allowed;
+    }
+
+    .icon-btn {
+        padding: 5px 10px;
+    }
+
+    .roster {
+        background: #000;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 10px;
+        min-height: 50px;
+    }
+
+    .roster-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .roster-item {
+        background: #222;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.9rem;
+        border: 1px solid #444;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .roster-item::before {
+        content: '●';
+        color: var(--success-color);
+        font-size: 0.8rem;
+    }
+
+    .pref-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .pref-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+    }
+
+    .pref-group small {
+        display: block;
+        margin-top: 5px;
+        font-size: 0.75rem;
+        color: #666;
+    }
+
+    .toggle-group {
+        display: flex;
+        background: #000;
+        border-radius: 4px;
+        padding: 2px;
+    }
+
+    .toggle-btn {
+        flex: 1;
+        background: transparent;
+        color: #666;
+        padding: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+    }
+
+    .toggle-btn.active {
+        background: var(--accent-dim);
+        color: white;
+    }
+
+    select {
+        width: 100%;
+        background: #000;
+        color: white;
+        border: 1px solid var(--border-color);
+        padding: 8px;
+        border-radius: 4px;
+    }
+
+    .chat-panel {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .chat-log {
+        flex-grow: 1;
+        overflow-y: auto;
+        background: #000;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 10px;
+        font-family: 'Roboto Mono', monospace;
+        font-size: 0.9rem;
+    }
+
+    .message {
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+
+    .message .sender {
+        font-weight: bold;
+        color: var(--accent-color);
+        margin-right: 5px;
+    }
+
+    .message .content {
+        color: #ddd;
+    }
+
+    .message.system {
+        color: var(--text-secondary);
+        font-style: italic;
+    }
+
+    .message.self .sender {
+        color: #aaa;
+    }
+
+    .input-area {
+        display: flex;
+        gap: 10px;
+    }
+
+    #text-input {
+        flex-grow: 1;
+    }
+
+    .ptt-btn {
+        flex-grow: 1;
+        background: #333;
+        border: 1px solid var(--border-color);
+        font-size: 1.1rem;
+        letter-spacing: 1px;
+    }
+
+    .ptt-btn:not(:disabled):hover {
+        background: #444;
+        color: white;
+    }
+
+    .ptt-btn.recording {
+        background: var(--danger-color);
+        color: white;
+        animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.4);
         }
 
-        * {
-            box-sizing: border-box;
+        70% {
+            box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            font-family: 'Rajdhani', sans-serif;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
+        100% {
+            box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
         }
+    }
 
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            max-width: 100%;
-            margin: 0 auto;
-            width: 100%;
-            padding: 10px;
-        }
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background-color: #555;
+        display: inline-block;
+        margin-left: 5px;
+    }
 
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 2px solid var(--accent-dim);
-            margin-bottom: 10px;
-        }
+    .status-dot.valid {
+        background-color: #4caf50;
+        box-shadow: 0 0 5px #4caf50;
+    }
 
-        h1 {
-            margin: 0;
-            font-size: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--accent-color);
-            text-shadow: 0 0 10px var(--accent-dim);
-        }
-
-        .status-indicator {
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.9rem;
-            padding: 4px 8px;
-            border-radius: 4px;
-            background: #333;
-            color: #666;
-        }
-
-        .status-indicator.online {
-            background: var(--accent-dim);
-            color: white;
-            box-shadow: 0 0 10px var(--accent-dim);
-        }
-
-        .status-indicator.offline {
-            background: var(--danger-color);
-            color: white;
-        }
-
-        main {
-            flex-grow: 1;
-            display: grid;
-            grid-template-columns: 320px 1fr 320px;
-            gap: 15px;
-            overflow: hidden;
-        }
-
-        .left-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow-y: auto;
-        }
-
-        .chat-panel {
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        .right-panel {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow-y: auto;
-        }
-
-
-        .panel {
-            background: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            padding: 15px;
-            border-radius: 8px;
-        }
-
-        h2 {
-            margin: 0 0 15px 0;
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
-        }
-
-        .connection-controls {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .control-group label {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-        }
-
-        .input-box {
-            display: flex;
-            gap: 5px;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            background: #000;
-            border: 1px solid var(--border-color);
-            color: white;
-            padding: 8px;
-            border-radius: 4px;
-            flex-grow: 1;
-            font-family: 'Roboto Mono', monospace;
-        }
-
-        #my-id {
-            font-family: 'Roboto Mono', monospace;
-            color: var(--accent-color);
-            font-weight: bold;
-            padding: 8px;
-            background: #000;
-            border: 1px solid var(--accent-dim);
-            border-radius: 4px;
-            display: block;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        button {
-            background: var(--accent-dim);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Rajdhani', sans-serif;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background: var(--accent-color);
-            color: black;
-        }
-
-        button:disabled {
-            background: #333;
-            color: #666;
-            cursor: not-allowed;
-        }
-
-        .icon-btn {
-            padding: 5px 10px;
-        }
-
-        .roster {
-            background: #000;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 10px;
-            min-height: 50px;
-        }
-
-        .roster-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .roster-item {
-            background: #222;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            border: 1px solid #444;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .roster-item::before {
-            content: '●';
-            color: var(--success-color);
-            font-size: 0.8rem;
-        }
-
-        .pref-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .pref-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        .pref-group small {
-            display: block;
-            margin-top: 5px;
-            font-size: 0.75rem;
-            color: #666;
-        }
-
-        .toggle-group {
-            display: flex;
-            background: #000;
-            border-radius: 4px;
-            padding: 2px;
-        }
-
-        .toggle-btn {
-            flex: 1;
-            background: transparent;
-            color: #666;
-            padding: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 5px;
-        }
-
-        .toggle-btn.active {
-            background: var(--accent-dim);
-            color: white;
-        }
-
-        select {
-            width: 100%;
-            background: #000;
-            color: white;
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            border-radius: 4px;
-        }
-
-        .chat-panel {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            min-height: 0;
-        }
-
-        .chat-log {
-            flex-grow: 1;
-            overflow-y: auto;
-            background: #000;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            padding: 10px;
-            margin-bottom: 10px;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 0.9rem;
-        }
-
-        .message {
-            margin-bottom: 8px;
-            line-height: 1.4;
-        }
-
-        .message .sender {
-            font-weight: bold;
-            color: var(--accent-color);
-            margin-right: 5px;
-        }
-
-        .message .content {
-            color: #ddd;
-        }
-
-        .message.system {
-            color: var(--text-secondary);
-            font-style: italic;
-        }
-
-        .message.self .sender {
-            color: #aaa;
-        }
-
-        .input-area {
-            display: flex;
-            gap: 10px;
-        }
-
-        #text-input {
-            flex-grow: 1;
-        }
-
-        .ptt-btn {
-            flex-grow: 1;
-            background: #333;
-            border: 1px solid var(--border-color);
-            font-size: 1.1rem;
-            letter-spacing: 1px;
-        }
-
-        .ptt-btn:not(:disabled):hover {
-            background: #444;
-            color: white;
-        }
-
-        .ptt-btn.recording {
-            background: var(--danger-color);
-            color: white;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0.4);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(255, 68, 68, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(255, 68, 68, 0);
-            }
-        }
-
-        .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #555;
-            display: inline-block;
-            margin-left: 5px;
-        }
-
-        .status-dot.valid {
-            background-color: #4caf50;
-            box-shadow: 0 0 5px #4caf50;
-        }
-
-        .status-dot.invalid {
-            background-color: #f44336;
-            box-shadow: 0 0 5px #f44336;
-        }
-    </style>
+    .status-dot.invalid {
+        background-color: #f44336;
+        box-shadow: 0 0 5px #f44336;
+    }
+</style>
 </head>
 
 <body>
@@ -409,69 +400,82 @@
 
         <main>
             <div class="left-panel">
-            <section class="panel connection-panel">
-                <h2>Connection</h2>
-                <div class="connection-controls">
-                    <div class="control-group">
-                        <label>My Display Name</label>
-                        <div class="input-box">
-                            <input type="text" id="display-name" placeholder="Enter Name" value="User">
-                            <button id="update-name-btn" class="icon-btn" title="Update Name">💾</button>
+                <section class="panel connection-panel">
+                    <h2>Connection</h2>
+                    <div class="connection-controls">
+                        <div class="control-group">
+                            <label>My Display Name</label>
+                            <div class="input-box">
+                                <input type="text" id="display-name" placeholder="Enter Name" value="User">
+                                <button id="update-name-btn" class="icon-btn" title="Update Name">💾</button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>My ID</label>
+                            <div class="input-box">
+                                <span id="my-id">Connecting...</span>
+                                <button id="copy-id-btn" class="icon-btn" title="Copy ID">📋</button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>Connect to Friend</label>
+                            <div class="input-box">
+                                <input type="text" id="peer-id-input" placeholder="Enter Friend's ID">
+                                <button id="connect-btn">JOIN</button>
+                            </div>
                         </div>
                     </div>
-                    <div class="control-group">
-                        <label>My ID</label>
-                        <div class="input-box">
-                            <span id="my-id">Connecting...</span>
-                            <button id="copy-id-btn" class="icon-btn" title="Copy ID">📋</button>
-                        </div>
+                    <div class="roster">
+                        <label style="font-size:0.8rem; color:#888; text-transform:uppercase;">Connected
+                            Users</label>
+                        <ul id="roster-list" class="roster-list"></ul>
                     </div>
-                    <div class="control-group">
-                        <label>Connect to Friend</label>
-                        <div class="input-box">
-                            <input type="text" id="peer-id-input" placeholder="Enter Friend's ID">
-                            <button id="connect-btn">JOIN</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="roster">
-                    <label style="font-size:0.8rem; color:#888; text-transform:uppercase;">Connected
-                        Users</label>
-                    <ul id="roster-list" class="roster-list"></ul>
-                </div>
-            </section>
+                </section>
 
             </div>
 
             <div class="right-panel">
-<section class="panel preferences-panel">
-                <h2>Preferences</h2>
-                <div class="pref-grid">
-                    <div class="pref-group">
-                        <label>INPUT MODE</label>
-                        <div class="toggle-group">
-                            <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">🎤 Voice</button>
-                            <button class="toggle-btn" data-mode="text" id="btn-input-text">⌨️ Text</button>
-                        </div>
-                    </div>
-                    <div class="pref-group">
-                        <label>OUTPUT MODE</label>
-                        <div class="toggle-group">
-                            <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">🔊 Audio</button>
-                            <button class="toggle-btn" data-mode="text" id="btn-output-text">💬 Text</button>
-                        </div>
-                    </div>
-                    <div class="pref-group">
-                        <label>VOICE AVATAR</label>
-                        <div class="input-box">
-                            <select id="voice-select">
-                                <option value="loading">Loading voices...</option>
-                            </select>
-                            <button id="test-voice-btn" class="icon-btn" title="Test Voice">🔊</button>
+                <section class="panel preferences-panel">
+                    <h2>Preferences</h2>
+                    <div class="pref-grid">
+                        <div class="pref-group">
+                            <label>INPUT MODE</label>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">🎤
+                                    Voice</button>
+                                <button class="toggle-btn" data-mode="text" id="btn-input-text">⌨️ Text</button>
+                            </div>
                         </div>
                         <div class="pref-group">
-                            <label>INPUT LANGUAGE</label>
-                            <select id="input-language">
+                            <label>OUTPUT MODE</label>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">🔊
+                                    Audio</button>
+                                <button class="toggle-btn" data-mode="text" id="btn-output-text">💬 Text</button>
+                            </div>
+                        </div>
+                        <div class="pref-group">
+                            <label>VOICE AVATAR</label>
+                            <div class="input-box">
+                                <select id="voice-select">
+                                    <option value="loading">Loading voices...</option>
+                                </select>
+                                <button id="test-voice-btn" class="icon-btn" title="Test Voice">🔊</button>
+                            </div>
+                            <div class="pref-group">
+                                <label>INPUT LANGUAGE</label>
+                                <select id="input-language">
+                                    <option value="en">English</option>
+                                    <option value="lo">Laotian (ລາວ)</option>
+                                    <option value="he">Hebrew (עברית)</option>
+                                    <option value="es">Spanish (Español)</option>
+                                    <option value="de">German (Deutsch)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pref-group">
+                            <label>OUTPUT LANGUAGE</label>
+                            <select id="output-language">
                                 <option value="en">English</option>
                                 <option value="lo">Laotian (ລາວ)</option>
                                 <option value="he">Hebrew (עברית)</option>
@@ -479,61 +483,50 @@
                                 <option value="de">German (Deutsch)</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="pref-group">
-                        <label>OUTPUT LANGUAGE</label>
-                        <select id="output-language">
-                            <option value="en">English</option>
-                            <option value="lo">Laotian (ລາວ)</option>
-                            <option value="he">Hebrew (עברית)</option>
-                            <option value="es">Spanish (Español)</option>
-                            <option value="de">German (Deutsch)</option>
-                        </select>
-                    </div>
-                    <div class="pref-group">
-                        <label>MICROPHONE</label>
-                        <div class="input-box">
-                            <select id="mic-select">
-                                <option value="default">Default</option>
-                            </select>
-                            <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
-                        </div>
-
                         <div class="pref-group">
-                            <label>ELEVENLABS API KEY</label>
+                            <label>MICROPHONE</label>
                             <div class="input-box">
-                                <input type="password" id="elevenlabs-key" placeholder="Enter API Key">
-                                <button id="verify-key-btn" class="icon-btn" title="Verify & Save">💾</button>
-                                <span id="api-status" class="status-dot" title="Not Verified"></span>
+                                <select id="mic-select">
+                                    <option value="default">Default</option>
+                                </select>
+                                <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
                             </div>
-                        </div>
 
-                        <div class="pref-group" style="margin-top: 10px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <input type="checkbox" id="hear-own-voice" style="width: auto;">
-                                <label for="hear-own-voice"
-                                    style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Hear My Own
-                                    Voice</label>
+                            <div class="pref-group">
+                                <label>ELEVENLABS API KEY</label>
+                                <div class="input-box">
+                                    <input type="password" id="elevenlabs-key" placeholder="Enter API Key">
+                                    <button id="verify-key-btn" class="icon-btn" title="Verify & Save">💾</button>
+                                    <span id="api-status" class="status-dot" title="Not Verified"></span>
+                                </div>
                             </div>
-                            <small>Play back your messages in your selected voice</small>
+
+                            <div class="pref-group" style="margin-top: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <input type="checkbox" id="hear-own-voice" style="width: auto;">
+                                    <label for="hear-own-voice"
+                                        style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Hear My Own
+                                        Voice</label>
+                                </div>
+                                <small>Play back your messages in your selected voice</small>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
-                    <label>NETWORK (ICE SERVERS)</label>
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <input type="text" id="ice-urls" placeholder="stun:stun.l.google.com:19302">
-                        <input type="text" id="ice-user" placeholder="Username (Optional)">
-                        <input type="password" id="ice-pass" placeholder="Password (Optional)">
-                        <div style="display: flex; align-items: center; gap: 10px; margin: 5px 0;">
-                            <input type="checkbox" id="force-relay" style="width: auto;">
-                            <label for="force-relay" style="margin: 0; font-size: 0.8rem; color: #aaa;">Force
-                                Relay (Hide IP) - Requires TURN</label>
+                    <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
+                        <label>NETWORK (ICE SERVERS)</label>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <input type="text" id="ice-urls" placeholder="stun:stun.l.google.com:19302">
+                            <input type="text" id="ice-user" placeholder="Username (Optional)">
+                            <input type="password" id="ice-pass" placeholder="Password (Optional)">
+                            <div style="display: flex; align-items: center; gap: 10px; margin: 5px 0;">
+                                <input type="checkbox" id="force-relay" style="width: auto;">
+                                <label for="force-relay" style="margin: 0; font-size: 0.8rem; color: #aaa;">Force
+                                    Relay (Hide IP) - Requires TURN</label>
+                            </div>
+                            <button id="save-net-btn">SAVE & RECONNECT</button>
                         </div>
-                        <button id="save-net-btn">SAVE & RECONNECT</button>
                     </div>
-                </div>
-            </section>
+                </section>
             </div>
 
             <section class="panel chat-panel">
@@ -923,23 +916,23 @@
         }
 
         function handleData(data, peerId) {
-                if (data.type === 'chat') {
-                    // Translate incoming message if output language is not English
-                    translateFromEnglish(data.message, state.outputLanguage).then(translatedText => {
-                        // Show both original and translation if different
-                        if (data.message !== translatedText) {
-                            logChat(peerId, `${data.message} → ${translatedText}`);
-                        } else {
-                            logChat(peerId, data.message);
-                        }
-                        
-                        // Speak the translated text
-                        if (state.outputMode === 'audio') {
-                            speakText(translatedText, data.avatar);
-                        }
-                    });
-                }
+            if (data.type === 'chat') {
+                // Translate incoming message if output language is not English
+                translateFromEnglish(data.message, state.outputLanguage).then(translatedText => {
+                    // Show both original and translation if different
+                    if (data.message !== translatedText) {
+                        logChat(peerId, `${data.message} → ${translatedText}`);
+                    } else {
+                        logChat(peerId, data.message);
+                    }
+
+                    // Speak the translated text
+                    if (state.outputMode === 'audio') {
+                        speakText(translatedText, data.avatar);
+                    }
+                });
             }
+        }
 
         function sendData(data) {
             state.connections.forEach(conn => conn.send(data));
@@ -983,29 +976,29 @@
             if (e.key === 'Enter') sendMessage();
         });
 
-                    async function sendMessage() {
-                const text = els.textInput.value.trim();
-                if (text) {
-                    // Translate to English if needed
-                    const translatedText = await translateToEnglish(text, state.inputLanguage);
-                    
-                    // Show both original and translation in chat if different
-                    if (text !== translatedText) {
-                        logChat(state.displayName, `${text} → ${translatedText}`, true);
-                    } else {
-                        logChat(state.displayName, text, true);
-                    }
-                    
-                    // Send the English translation to peer
-                    sendData({ type: 'chat', message: translatedText, avatar: state.voiceAvatar });
-                    
-                    // Play back own voice if enabled (use translated text)
-                    if (state.hearOwnVoice) {
-                        speakText(translatedText, state.voiceAvatar);
-                    }
-                    els.textInput.value = '';
+        async function sendMessage() {
+            const text = els.textInput.value.trim();
+            if (text) {
+                // Translate to English if needed
+                const translatedText = await translateToEnglish(text, state.inputLanguage);
+
+                // Show both original and translation in chat if different
+                if (text !== translatedText) {
+                    logChat(state.displayName, `${text} → ${translatedText}`, true);
+                } else {
+                    logChat(state.displayName, text, true);
                 }
+
+                // Send the English translation to peer
+                sendData({ type: 'chat', message: translatedText, avatar: state.voiceAvatar });
+
+                // Play back own voice if enabled (use translated text)
+                if (state.hearOwnVoice) {
+                    speakText(translatedText, state.voiceAvatar);
+                }
+                els.textInput.value = '';
             }
+        }
 
         // --- Preferences ---
         document.querySelectorAll('.toggle-btn').forEach(btn => {
@@ -1060,18 +1053,18 @@
             }
         });
 
-            // Output Language selector
-            const savedOutputLang = localStorage.getItem('output_language');
-            if (savedOutputLang) {
-                state.outputLanguage = savedOutputLang;
-                els.outputLanguage.value = savedOutputLang;
-            }
+        // Output Language selector
+        const savedOutputLang = localStorage.getItem('output_language');
+        if (savedOutputLang) {
+            state.outputLanguage = savedOutputLang;
+            els.outputLanguage.value = savedOutputLang;
+        }
 
-            els.outputLanguage.addEventListener('change', (e) => {
-                state.outputLanguage = e.target.value;
-                localStorage.setItem('output_language', e.target.value);
-                logSystem(`Output language set to: ${e.target.options[e.target.selectedIndex].text}`);
-            });
+        els.outputLanguage.addEventListener('change', (e) => {
+            state.outputLanguage = e.target.value;
+            localStorage.setItem('output_language', e.target.value);
+            logSystem(`Output language set to: ${e.target.options[e.target.selectedIndex].text}`);
+        });
 
 
 
@@ -1102,54 +1095,54 @@
 
 
         // --- Translation Function ---
-            async function translateToEnglish(text, sourceLang) {
-                if (sourceLang === 'en') return text; // No translation needed
-                
-                try {
-                    // Using MyMemory Translation API (free, no API key)
-                    const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|en`);
+        async function translateToEnglish(text, sourceLang) {
+            if (sourceLang === 'en') return text; // No translation needed
 
-                    if (!response.ok) {
-                        throw new Error(`Translation failed: ${response.status}`);
-                    }
+            try {
+                // Using MyMemory Translation API (free, no API key)
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang}|en`);
 
-                    const data = await response.json();
-                    
-                    if (data.responseStatus === 200 && data.responseData) {
-                        return data.responseData.translatedText;
-                    } else {
-                        throw new Error('Translation API returned invalid data');
-                    }
-                } catch (error) {
-                    console.error('Translation error:', error);
-                    logSystem(`⚠️ Translation failed: ${error.message}. Using original text.`);
-                    return text; // Fallback to original text
+                if (!response.ok) {
+                    throw new Error(`Translation failed: ${response.status}`);
                 }
-            }
 
-            // --- Reverse Translation Function ---
-            async function translateFromEnglish(text, targetLang) {
-                if (targetLang === 'en') return text; // No translation needed
-                
-                try {
-                    const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`);
+                const data = await response.json();
 
-                    if (!response.ok) {
-                        throw new Error(`Translation failed: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    
-                    if (data.responseStatus === 200 && data.responseData) {
-                        return data.responseData.translatedText;
-                    } else {
-                        throw new Error('Translation API returned invalid data');
-                    }
-                } catch (error) {
-                    console.error('Reverse translation error:', error);
-                    return text; // Fallback to original text
+                if (data.responseStatus === 200 && data.responseData) {
+                    return data.responseData.translatedText;
+                } else {
+                    throw new Error('Translation API returned invalid data');
                 }
+            } catch (error) {
+                console.error('Translation error:', error);
+                logSystem(`⚠️ Translation failed: ${error.message}. Using original text.`);
+                return text; // Fallback to original text
             }
+        }
+
+        // --- Reverse Translation Function ---
+        async function translateFromEnglish(text, targetLang) {
+            if (targetLang === 'en') return text; // No translation needed
+
+            try {
+                const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|${targetLang}`);
+
+                if (!response.ok) {
+                    throw new Error(`Translation failed: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.responseStatus === 200 && data.responseData) {
+                    return data.responseData.translatedText;
+                } else {
+                    throw new Error('Translation API returned invalid data');
+                }
+            } catch (error) {
+                console.error('Reverse translation error:', error);
+                return text; // Fallback to original text
+            }
+        }
 
 
 
