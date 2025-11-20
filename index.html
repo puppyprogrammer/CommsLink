@@ -521,6 +521,17 @@
             connections: [],
             inputMode: 'voice',
             outputMode: 'audio',
+            voiceAvatar: null,
+            isRecording: false,
+            elevenLabsVoices: [],
+            audioCache: new Map(),
+            hearOwnVoice: false,
+            inputLanguage: 'en'
+        };
+
+        const els = {
+            myId: document.getElementById('my-id'),
+            status: document.getElementById('status-indicator'),
             peerIdInput: document.getElementById('peer-id-input'),
             connectBtn: document.getElementById('connect-btn'),
             rosterList: document.getElementById('roster-list'),
