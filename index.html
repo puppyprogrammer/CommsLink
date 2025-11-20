@@ -246,6 +246,10 @@
             background: transparent;
             color: #666;
             padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
 
         .toggle-btn.active {
@@ -363,14 +367,14 @@
                         <label>My Display Name</label>
                         <div class="input-box">
                             <input type="text" id="display-name" placeholder="Enter Name" value="User">
-                            <button id="update-name-btn" class="icon-btn" title="Update Name">??</button>
+                            <button id="update-name-btn" class="icon-btn" title="Update Name">💾</button>
                         </div>
                     </div>
                     <div class="control-group">
                         <label>My ID</label>
                         <div class="input-box">
                             <span id="my-id">Connecting...</span>
-                            <button id="copy-id-btn" class="icon-btn" title="Copy ID">??</button>
+                            <button id="copy-id-btn" class="icon-btn" title="Copy ID">📋</button>
                         </div>
                     </div>
                     <div class="control-group">
@@ -394,15 +398,15 @@
                     <div class="pref-group">
                         <label>INPUT MODE</label>
                         <div class="toggle-group">
-                            <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">??? Voice</button>
-                            <button class="toggle-btn" data-mode="text" id="btn-input-text">?? Text</button>
+                            <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">🎤 Voice</button>
+                            <button class="toggle-btn" data-mode="text" id="btn-input-text">⌨️ Text</button>
                         </div>
                     </div>
                     <div class="pref-group">
                         <label>OUTPUT MODE</label>
                         <div class="toggle-group">
-                            <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">?? Audio</button>
-                            <button class="toggle-btn" data-mode="text" id="btn-output-text">?? Text</button>
+                            <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">🔊 Audio</button>
+                            <button class="toggle-btn" data-mode="text" id="btn-output-text">💬 Text</button>
                         </div>
                     </div>
                     <div class="pref-group">
@@ -412,8 +416,10 @@
                                 <option value="male">Male</option>
                                 <option value="female">Female</option>
                                 <option value="robot">Robot</option>
+                                <option value="male_deep">Male (Deep)</option>
+                                <option value="female_high">Female (High)</option>
                             </select>
-                            <button id="test-voice-btn" class="icon-btn" title="Test Voice">??</button>
+                            <button id="test-voice-btn" class="icon-btn" title="Test Voice">🔊</button>
                         </div>
                     </div>
                     <div class="pref-group">
@@ -422,7 +428,7 @@
                             <select id="mic-select">
                                 <option value="default">Default</option>
                             </select>
-                            <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">??</button>
+                            <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
                         </div>
                     </div>
                 </div>
@@ -673,6 +679,7 @@
         function loadVoices() {
             voices = synth.getVoices();
             // Populate voice select if needed, or just keep generic types
+            console.log("Available voices:", voices.map(v => v.name));
         }
         if (speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = loadVoices;
@@ -685,16 +692,24 @@
             if (voices.length === 0) loadVoices();
 
             let sel = null;
+            // Improved Voice Selection Logic
             if (avatar === 'female') {
-                sel = voices.find(v => v.name.includes('Female') || v.name.includes('Google US English'));
-                utter.pitch = 1.2; utter.rate = 1.1;
+                sel = voices.find(v => v.name.includes('Google US English') || v.name.includes('Microsoft Zira') || v.name.includes('Female'));
+                if (!sel) { utter.pitch = 1.2; utter.rate = 1.1; } // Fallback
             } else if (avatar === 'male') {
-                sel = voices.find(v => v.name.includes('Male') || v.name.includes('Google UK English Male'));
-                utter.pitch = 0.8; utter.rate = 0.9;
-            } else {
+                sel = voices.find(v => v.name.includes('Google UK English Male') || v.name.includes('Microsoft David') || v.name.includes('Male'));
+                if (!sel) { utter.pitch = 0.9; utter.rate = 0.9; } // Fallback
+            } else if (avatar === 'robot') {
                 sel = voices.find(v => v.name.includes('Zira') || v.name.includes('Google US English'));
                 utter.pitch = 0.5; utter.rate = 0.8;
+            } else if (avatar === 'male_deep') {
+                sel = voices.find(v => v.name.includes('Male'));
+                utter.pitch = 0.6; utter.rate = 0.85;
+            } else if (avatar === 'female_high') {
+                sel = voices.find(v => v.name.includes('Female'));
+                utter.pitch = 1.4; utter.rate = 1.1;
             }
+
             if (sel) utter.voice = sel;
             synth.speak(utter);
         }
@@ -737,29 +752,46 @@
 
         if (SpeechRecognition) {
             recognition = new SpeechRecognition();
-            recognition.continuous = false;
+            recognition.continuous = true; // CHANGED: Keep listening
             recognition.lang = 'en-US';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
 
             recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                logSystem(`Heard: "${transcript}"`);
-                els.textInput.value = transcript;
-                sendMessage(); // Auto-send on voice input
+                // Loop through results because continuous mode returns multiple
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        const transcript = event.results[i][0].transcript;
+                        logSystem(`Heard: "${transcript}"`);
+                        els.textInput.value = transcript;
+                        sendMessage(); // Auto-send on voice input
+                    }
+                }
             };
 
             recognition.onend = () => {
-                state.isRecording = false;
-                els.pttBtn.classList.remove('recording');
-                els.pttBtn.textContent = 'START MIC';
+                // Auto-restart if we are supposed to be recording
+                if (state.isRecording) {
+                    console.log("Recognition ended, restarting...");
+                    try {
+                        recognition.start();
+                    } catch (e) {
+                        console.log("Restart failed (maybe already started):", e);
+                    }
+                } else {
+                    els.pttBtn.classList.remove('recording');
+                    els.pttBtn.textContent = 'START MIC';
+                }
             };
 
             recognition.onerror = (event) => {
                 console.error('Speech recognition error', event.error);
-                state.isRecording = false;
-                els.pttBtn.classList.remove('recording');
-                els.pttBtn.textContent = 'START MIC';
+                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                    state.isRecording = false;
+                    els.pttBtn.classList.remove('recording');
+                    els.pttBtn.textContent = 'START MIC';
+                }
+                // Ignore other errors and let onend handle restart
             };
         } else {
             logSystem('Speech Recognition not supported in this browser.');
@@ -770,17 +802,20 @@
             if (!recognition) return;
 
             if (state.isRecording) {
+                state.isRecording = false;
                 recognition.stop();
+                els.pttBtn.classList.remove('recording');
+                els.pttBtn.textContent = 'START MIC';
             } else {
-                // Set selected microphone
-                // Note: Web Speech API doesn't directly support setting deviceId on the recognition object in all browsers,
-                // but we can try to ensure getUserMedia uses it if we were doing WebRTC audio streaming.
-                // For simple SpeechRecognition, it usually uses the system default or browser default.
-
-                recognition.start();
                 state.isRecording = true;
-                els.pttBtn.classList.add('recording');
-                els.pttBtn.textContent = 'LISTENING...';
+                try {
+                    recognition.start();
+                    els.pttBtn.classList.add('recording');
+                    els.pttBtn.textContent = 'STOP MIC'; // Changed label to indicate toggle
+                } catch (e) {
+                    console.error("Failed to start recognition:", e);
+                    state.isRecording = false;
+                }
             }
         });
 
