@@ -547,7 +547,7 @@
             }
         }
 
-        async function fetchElevenLabsVoices(key) {
+                async function fetchElevenLabsVoices(key) {
             try {
                 const response = await fetch('https://api.elevenlabs.io/v1/voices', {
                     headers: { 'xi-api-key': key }
@@ -556,13 +556,85 @@
                 const data = await response.json();
                 return data.voices;
             } catch (e) {
-                const audio = new Audio(audioUrl);
-                audio.play();
-                audio.onended = () => URL.revokeObjectURL(audioUrl);
+                console.error('Error fetching voices:', e);
+                return [];
+            }
+        }
+
+        async function speakWithElevenLabs(text, voiceId) {
+            const key = localStorage.getItem('elevenlabs_api_key');
+            if (!key) {
+                logSystem('⚠️ No ElevenLabs API key found. Using browser voice.');
+                speakWithBrowserVoice(text, 'female');
+                return;
             }
 
+            // Check cache first
+            const cacheKey = `${voiceId}_${text}`;
+            if (state.audioCache.has(cacheKey)) {
+                // logSystem('📦 Using cached audio.');
+                const audioBlob = state.audioCache.get(cacheKey);
+                playAudioBlob(audioBlob);
+                return;
+            }
 
-            async function updateVoiceSelect() {
+            try {
+                const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'xi-api-key': key,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        model_id: 'eleven_monolingual_v1',
+                        voice_settings: {
+                            stability: 0.5,
+                            similarity_boost: 0.75
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ detail: response.statusText }));
+                    const errorMsg = errorData.detail?.message || errorData.detail || 'Unknown Error';
+                    
+                    logSystem(`❌ ElevenLabs Error (${response.status}): ${errorMsg}`);
+                    
+                    if (response.status === 401) {
+                         logSystem('🔑 API Key Invalid/Expired. Please check settings.');
+                         updateApiStatus(false);
+                    }
+                    throw new Error(`TTS API Error: ${response.status} - ${errorMsg}`);
+                }
+
+                const audioBlob = await response.blob();
+
+                // Cache the audio (limit cache size)
+                if (state.audioCache.size > 50) {
+                    const firstKey = state.audioCache.keys().next().value;
+                    state.audioCache.delete(firstKey);
+                }
+                state.audioCache.set(cacheKey, audioBlob);
+
+                playAudioBlob(audioBlob);
+            } catch (error) {
+                console.error('ElevenLabs TTS error:', error);
+                logSystem(`⚠️ TTS Failed: ${error.message}`);
+                logSystem('🔄 Falling back to browser voice.');
+                speakWithBrowserVoice(text, 'female'); // Fallback
+            }
+        }
+
+        function playAudioBlob(blob) {
+            const audioUrl = URL.createObjectURL(blob);
+            const audio = new Audio(audioUrl);
+            audio.play();
+            audio.onended = () => URL.revokeObjectURL(audioUrl);
+        }
+
+
+        async function updateVoiceSelect() {
                 els.voiceSelect.innerHTML = '';
 
                 const key = localStorage.getItem('elevenlabs_api_key');
