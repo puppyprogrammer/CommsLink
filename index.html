@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -400,7 +400,6 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <header>
@@ -408,6 +407,7 @@
         </header>
 
         <main>
+            <!-- LEFT PANEL: Connection & Roster -->
             <div class="left-panel">
                 <section class="panel connection-panel">
                     <h2>Connection</h2>
@@ -434,124 +434,121 @@
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="roster">
+                        <label style="font-size:0.8rem; color:#888; text-transform:uppercase;">Connected Users</label>
+                        <ul id="roster-list" class="roster-list"></ul>
+                    </div>
+                </section>
             </div>
-            <button id="save-net-btn" style="width: auto; max-width: 200px;">SAVE & RECONNECT</button>
-    </div>
-    </div>
-    </section>
 
-    <div class="roster">
-        <label style="font-size:0.8rem; color:#888; text-transform:uppercase;">Connected
-            Users</label>
-        <ul id="roster-list" class="roster-list"></ul>
-    </div>
-    </section>
+            <!-- CENTER PANEL: Chat -->
+            <section class="panel chat-panel">
+                <div id="chat-log" class="chat-log">
+                    <div class="system-msg">System initialized. Waiting for connection...</div>
+                </div>
+                <div class="input-area">
+                    <input type="text" id="text-input" placeholder="Type message..." disabled>
+                    <button id="send-btn" disabled>SEND</button>
+                    <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
+                </div>
+            </section>
 
-    </div>
+            <!-- RIGHT PANEL: Preferences -->
+            <div class="right-panel">
+                <section class="panel preferences-panel">
+                    <h2>Preferences</h2>
+                    <div class="pref-grid">
+                        <div class="pref-group">
+                            <label>INPUT MODE</label>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">🎤 Voice</button>
+                                <button class="toggle-btn" data-mode="text" id="btn-input-text">⌨️ Text</button>
+                            </div>
+                        </div>
+                        <div class="pref-group">
+                            <label>OUTPUT MODE</label>
+                            <div class="toggle-group">
+                                <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">🔊 Audio</button>
+                                <button class="toggle-btn" data-mode="text" id="btn-output-text">💬 Text</button>
+                            </div>
+                        </div>
+                        <div class="pref-group">
+                            <label>VOICE AVATAR</label>
+                            <div class="input-box">
+                                <select id="voice-select">
+                                    <option value="loading">Loading voices...</option>
+                                </select>
+                                <button id="test-voice-btn" class="icon-btn" title="Test Voice">🔊</button>
+                            </div>
+                        </div>
+                        <div class="pref-group">
+                            <label>INPUT LANGUAGE</label>
+                            <select id="input-language">
+                                <option value="en">English</option>
+                                <option value="lo">Laotian (ລາວ)</option>
+                                <option value="he">Hebrew (עברית)</option>
+                                <option value="es">Spanish (Español)</option>
+                                <option value="de">German (Deutsch)</option>
+                            </select>
+                        </div>
+                        <div class="pref-group">
+                            <label>OUTPUT LANGUAGE</label>
+                            <select id="output-language">
+                                <option value="en">English</option>
+                                <option value="lo">Laotian (ລາວ)</option>
+                                <option value="he">Hebrew (עברית)</option>
+                                <option value="es">Spanish (Español)</option>
+                                <option value="de">German (Deutsch)</option>
+                            </select>
+                        </div>
+                        <div class="pref-group">
+                            <label>MICROPHONE</label>
+                            <div class="input-box">
+                                <select id="mic-select">
+                                    <option value="default">Default</option>
+                                </select>
+                                <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
+                            </div>
+                        </div>
 
-    <div class="right-panel">
-        <section class="panel preferences-panel">
-            <h2>Preferences</h2>
-            <div class="pref-grid">
-                <div class="pref-group">
-                    <label>INPUT MODE</label>
-                    <div class="toggle-group">
-                        <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">🎤 Voice</button>
-                        <button class="toggle-btn" data-mode="text" id="btn-input-text">⌨️ Text</button>
-                    </div>
-                </div>
-                <div class="pref-group">
-                    <label>OUTPUT MODE</label>
-                    <div class="toggle-group">
-                        <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">🔊 Audio</button>
-                        <button class="toggle-btn" data-mode="text" id="btn-output-text">💬 Text</button>
-                    </div>
-                </div>
-                <div class="pref-group">
-                    <label>VOICE AVATAR</label>
-                    <div class="input-box">
-                        <select id="voice-select">
-                            <option value="loading">Loading voices...</option>
-                        </select>
-                        <button id="test-voice-btn" class="icon-btn" title="Test Voice">🔊</button>
-                    </div>
-                    <div class="pref-group">
-                        <label>INPUT LANGUAGE</label>
-                        <select id="input-language">
-                            <option value="en">English</option>
-                            <option value="lo">Laotian (ລາວ)</option>
-                            <option value="he">Hebrew (עברית)</option>
-                            <option value="es">Spanish (Español)</option>
-                            <option value="de">German (Deutsch)</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="pref-group">
-                    <label>OUTPUT LANGUAGE</label>
-                    <select id="output-language">
-                        <option value="en">English</option>
-                        <option value="lo">Laotian (ລາວ)</option>
-                        <option value="he">Hebrew (עברית)</option>
-                        <option value="es">Spanish (Español)</option>
-                        <option value="de">German (Deutsch)</option>
-                    </select>
-                </div>
-                <div class="pref-group">
-                    <label>MICROPHONE</label>
-                    <div class="input-box">
-                        <select id="mic-select">
-                            <option value="default">Default</option>
-                        </select>
-                        <button id="refresh-mic-btn" class="icon-btn" title="Refresh Mics">🔄</button>
-                    </div>
+                        <div class="pref-group">
+                            <label>ELEVENLABS API KEY</label>
+                            <div class="input-box">
+                                <input type="password" id="elevenlabs-key" placeholder="Enter API Key">
+                                <button id="verify-key-btn" class="icon-btn" title="Verify & Save">💾</button>
+                                <span id="api-status" class="status-dot" title="Not Verified"></span>
+                            </div>
+                        </div>
 
-                    <div class="pref-group">
-                        <label>ELEVENLABS API KEY</label>
-                        <div class="input-box">
-                            <input type="password" id="elevenlabs-key" placeholder="Enter API Key">
-                            <button id="verify-key-btn" class="icon-btn" title="Verify & Save">💾</button>
-                            <span id="api-status" class="status-dot" title="Not Verified"></span>
+                        <div class="pref-group" style="margin-top: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="checkbox" id="hear-own-voice" style="width: auto;">
+                                <label for="hear-own-voice" style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Hear My Own Voice</label>
+                            </div>
+                            <small>Play back your messages in your selected voice</small>
                         </div>
                     </div>
 
-                    <div class="pref-group" style="margin-top: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="hear-own-voice" style="width: auto;">
-                            <label for="hear-own-voice"
-                                style="margin: 0; font-size: 0.9rem; color: var(--text-secondary);">Hear My Own
-                                Voice</label>
+                    <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
+                        <label>NETWORK (ICE SERVERS)</label>
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
+                            <input type="text" id="ice-urls" placeholder="stun:stun.l.google.com:19302">
+                            <input type="text" id="ice-user" placeholder="Username (Optional)">
+                            <input type="password" id="ice-pass" placeholder="Password (Optional)">
+                            <div style="display: flex; align-items: center; gap: 10px; margin: 5px 0;">
+                                <input type="checkbox" id="force-relay" style="width: auto;">
+                                <label for="force-relay" style="margin: 0; font-size: 0.8rem; color: #aaa;">Force Relay (Hide IP) - Requires TURN</label>
+                            </div>
+                            <button id="save-net-btn" style="width: auto; max-width: 200px;">SAVE & RECONNECT</button>
                         </div>
-                        <small>Play back your messages in your selected voice</small>
                     </div>
-                </div>
+                </section>
             </div>
-            <div class="pref-group" style="margin-top: 15px; border-top: 1px solid #333; padding-top: 10px;">
-                <label>NETWORK (ICE SERVERS)</label>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <input type="text" id="ice-urls" placeholder="stun:stun.l.google.com:19302">
-                    <input type="text" id="ice-user" placeholder="Username (Optional)">
-                    <input type="password" id="ice-pass" placeholder="Password (Optional)">
-                    <div style="display: flex; align-items: center; gap: 10px; margin: 5px 0;">
-                        <input type="checkbox" id="force-relay" style="width: auto;">
-                        <label for="force-relay" style="margin: 0; font-size: 0.8rem; color: #aaa;">Force
-                            Relay (Hide IP) - Requires TURN</label>
-                    </div>
+        </main>
+    </div>
 
-                    <section class="panel chat-panel">
-                        <div id="chat-log" class="chat-log">
-                            <div class="system-msg">System initialized. Waiting for
-                                connection...</div>
-                        </div>
-                        <div class="input-area">
-                            <input type="text" id="text-input" placeholder="Type message..." disabled>
-                            <button id="send-btn" disabled>SEND</button>
-                            <button id="ptt-btn" class="ptt-btn" disabled>START MIC</button>
-                        </div>
-                    </section>
-                    </main>
-                </div>
-
-                <script>
+<script>
                     const state = {
                         myId: null,
                         displayName: 'User',
