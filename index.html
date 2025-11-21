@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -462,14 +462,6 @@
                     <h2>Preferences</h2>
                     <div class="pref-grid">
                         <div class="pref-group">
-                            <label>INPUT MODE</label>
-                            <div class="toggle-group">
-                                <button class="toggle-btn active" data-mode="voice" id="btn-input-voice">🎤
-                                    Voice</button>
-                                <button class="toggle-btn" data-mode="text" id="btn-input-text">⌨️ Text</button>
-                            </div>
-                        </div>
-                        <div class="pref-group">
                             <label>OUTPUT MODE</label>
                             <div class="toggle-group">
                                 <button class="toggle-btn active" data-mode="audio" id="btn-output-audio">🔊
@@ -545,7 +537,7 @@
             myId: null,
             displayName: 'User',
             connections: [],
-            inputMode: 'voice',
+
             outputMode: 'audio',
             voiceAvatar: null,
             isRecording: false,
@@ -897,6 +889,13 @@
         // --- UI & Interaction ---
         function updateRoster() {
             els.rosterList.innerHTML = '';
+            
+            // Add self
+            const selfLi = document.createElement('li');
+            selfLi.className = 'roster-item';
+            selfLi.textContent = `${state.displayName} (You)`;
+            els.rosterList.appendChild(selfLi);
+
             state.connections.forEach(conn => {
                 const li = document.createElement('li');
                 li.className = 'roster-item';
@@ -963,7 +962,7 @@
                 group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
 
-                if (e.target.id.includes('input')) state.inputMode = e.target.dataset.mode;
+
                 if (e.target.id.includes('output')) state.outputMode = e.target.dataset.mode;
             });
         });
